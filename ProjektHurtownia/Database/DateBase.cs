@@ -110,7 +110,7 @@ namespace ProjektHurtownia
 
         public static void AddNewProvider(string provider)
         {
-            string query = $"INSERT INTO provider(provider_name) VALUES (@NAME)";
+            string query = $"INSERT INTO provider(provider_name) VALUES (@Name)";
 
             using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -506,25 +506,124 @@ namespace ProjektHurtownia
             }
         }
 
-        // public static List<Product> FilterProducts(List<string> selectedTypes, List<string> selectedDisciplines, List<string> selectedProviders, int minimumPrice, int maximumPrice)
-        // {
+        private static string PrepareQuery(string query, List<string> list)
+        {
+            if (list.Count > 0)
+            {
+                foreach (var item in list)
+                    query += "'" + item + "' OR ";
+                query = query.Remove(query.Length - 3, 3);
+                query += ')';
+            }
+            else
+                query = "";
 
-        // }
+            return query;
+        }
+
+        public static List<Product> FilterProducts(List<string> selectedTypes, List<string> selectedDisciplines, List<string> selectedProviders, double minimumPrice, double maximumPrice)
+        {
+            var list = new List<Product>();
+            
+            string basicQuery = $"SELECT product_id,product_name,p.type_id,p.discipline_id,unit_quantity,unit_price,p.provider_id FROM product p INNER JOIN provider pr ON " +
+                $"p.provider_id=pr.provider_id INNER JOIN product_type pt ON p.type_id=pt.type_id INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id WHERE ";
+
+            string typeQuery = $"(pt.product_type LIKE ";
+            typeQuery = PrepareQuery(typeQuery, selectedTypes);
+            string disciplineQuery = $"(pd.discipline_kind LIKE ";
+            disciplineQuery = PrepareQuery(disciplineQuery, selectedDisciplines);
+            string providerQuery = $"(pr.provider_name LIKE ";
+            providerQuery = PrepareQuery(providerQuery, selectedProviders);
+
+            if (typeQuery != "")
+                basicQuery += typeQuery;
+
+            if (disciplineQuery != "" && typeQuery != "")
+                basicQuery += " AND " + disciplineQuery;
+            else if(disciplineQuery != "" && typeQuery == "")
+                basicQuery += disciplineQuery;
+
+            if((disciplineQuery !="" || typeQuery !="") && providerQuery !="")
+                basicQuery += " AND " + providerQuery;
+            else if(disciplineQuery == "" && typeQuery=="" && providerQuery != "")
+                basicQuery += providerQuery;
+
+            if (typeQuery == "" && disciplineQuery == "" && providerQuery == "")
+                basicQuery += "(unit_price>" + minimumPrice + " AND unit_price<" + maximumPrice + ')';
+            else
+                basicQuery += "AND (unit_price>" + minimumPrice + " AND unit_price<" + maximumPrice + ')';
+
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(basicQuery, connection);
+                try
+                {
+                    connection.Open();
+                    using (var rd = command.ExecuteReader())
+                    {
+                        foreach (DbDataRecord product in rd)
+                        {
+                            Product p = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
+                                Int32.Parse(product[4].ToString()), Double.Parse(product[5].ToString()), Int32.Parse(product[6].ToString()));
+                            list.Add(p);
+                        }
+                        return list;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return null;
+            }
+        }
 
         /*
         public static List<Product> FilterByProductName(string productName)
         {
 
         }
-               
-        public static List<Product> SortProductsByPriceAscending()
+        */      
+        public static List<Product> OrderProductsByPrice(List<Product> list, string orderBy)
         {
-        }
+            string products = "(";
+            string basicQuery = $"SELECT product_id,product_name,p.type_id,p.discipline_id,unit_quantity,unit_price,p.provider_id FROM product p INNER JOIN provider pr ON " +
+                $"p.provider_id=pr.provider_id INNER JOIN product_type pt ON p.type_id=pt.type_id INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id WHERE product_id IN ";
 
-        public static List<Product> SortProductsByPriceDescending()
-        {
+            if (list.Count > 0)
+            {          
+                foreach (var item in list)
+                    products += item.ProductId + ", ";
+                products = products.Remove(products.Length - 2, 2);
+                products += ')';
+            }
 
+            basicQuery += products + "ORDER BY unit_price " + orderBy;
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(basicQuery, connection);
+                try
+                {
+                    connection.Open();
+                    using (var rd = command.ExecuteReader())
+                    {
+                        foreach (DbDataRecord product in rd)
+                        {
+                            Product p = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
+                                Int32.Parse(product[4].ToString()), Double.Parse(product[5].ToString()), Int32.Parse(product[6].ToString()));
+                            list.Add(p);
+                        }
+                        return list;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return null;
+            }
         }
-        */
     }
 }
