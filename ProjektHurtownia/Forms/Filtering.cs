@@ -10,10 +10,11 @@ using System.Windows.Forms;
 
 namespace ProjektHurtownia.Forms
 {
-    public partial class Form3 : Form
+    public partial class Filtering : Form
     {
         private List<Product> actualFiltered = new List<Product>();
-        public Form3()
+        private bool ifInsert = false;
+        public Filtering()
         {
             InitializeComponent();
             var typeList = DateBase.GetAllTypes();
@@ -30,7 +31,7 @@ namespace ProjektHurtownia.Forms
         }
 
         private void button1_Click(object sender, EventArgs e)
-        {        
+        {
             var selectedTypes = new List<string>();
             var selectedDisciplines = new List<string>();
             var selectedProviders = new List<string>();
@@ -51,19 +52,48 @@ namespace ProjektHurtownia.Forms
             actualFiltered = DateBase.FilterProducts(selectedTypes, selectedDisciplines, selectedProviders, minimumPrice, maximumPrice);
             dataGridView1.DataSource = actualFiltered.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Cena = o.UnitPrice }).ToList();
 
+            if(!ifInsert)
+            {
+                DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn();
+                makeOrderButton.Name = "makeOrder";
+                makeOrderButton.Text = "Zloz zamowienie";
+                int columnIndex = 3;
+                makeOrderButton.UseColumnTextForButtonValue = true;
+                dataGridView1.Columns.Insert(columnIndex, makeOrderButton);
+                ifInsert = true;
+            }
+            
         }
         
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBox1.SelectedItem.Equals("Sortuj rosnąco"))
+            if (actualFiltered.Count == 0)
+                MessageBox.Show("Brak produktów do sortowania", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            else
             {
-                var list = DateBase.OrderProductsByPrice(actualFiltered, "ASC");
-                dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Cena = o.UnitPrice }).ToList();
+                if (comboBox1.SelectedItem.Equals("Sortuj rosnąco"))
+                {
+                    var list = DateBase.OrderProductsByPrice(actualFiltered, "ASC");
+                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Cena = o.UnitPrice }).ToList();
+                }
+                else if (comboBox1.SelectedItem.Equals("Sortuj malejąco"))
+                {
+                    var list = DateBase.OrderProductsByPrice(actualFiltered, "DESC");
+                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Cena = o.UnitPrice }).ToList();
+                }
             }
-            else if(comboBox1.SelectedItem.Equals("Sortuj malejąco"))
+        }
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridView1.Columns["makeOrder"].Index && e.RowIndex >= 0)
             {
-                var list = DateBase.OrderProductsByPrice(actualFiltered, "DESC");
-                dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Cena = o.UnitPrice }).ToList();
+                DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+                int id = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
+                Zamowienie zamowienie = new Zamowienie(id);
+                Hide();
+                zamowienie.ShowDialog();
+                Close();
+                // przenosi do nowego formularza, gdzie użytkownik wybiera ilość i składa zamówienie
             }
         }
     }

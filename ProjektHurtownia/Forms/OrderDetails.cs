@@ -11,11 +11,11 @@ using System.Windows.Forms;
 namespace ProjektHurtownia.Forms
 {  
 
-    public partial class Form4 : Form
+    public partial class Zamowienie : Form
     {
         private int idProduct;
 
-        public Form4(int idProduct)
+        public Zamowienie(int idProduct)
         {
             InitializeComponent();
             this.idProduct = idProduct;

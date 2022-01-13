@@ -1,4 +1,5 @@
 ﻿using MySqlConnector;
+using ProjektHurtownia.Classes;
 using ProjektHurtownia.Forms;
 using System;
 using System.Collections.Generic;
@@ -13,9 +14,9 @@ using System.Windows.Forms;
 
 namespace ProjektHurtownia
 {
-    public partial class Form1 : Form
+    public partial class Login : Form
     {
-        public Form1()
+        public Login()
         {
             InitializeComponent();
         }
@@ -42,26 +43,21 @@ namespace ProjektHurtownia
 
         private void button2_Click(object sender, EventArgs e)
         {
-            string login = textBox7.Text;
-            string haslo = textBox8.Text;
 
-            DateBase.Login(login, haslo);
+            DateBase.Login(textBox7.Text, Sha1.HashPassword(textBox8.Text));
 
             if (DateBase.idUser > 0)
             {
-                Form2 zaloguj = new Form2();
+                Filtering filtracja = new Filtering();
                 Hide();
-                zaloguj.ShowDialog();
+                filtracja.ShowDialog();
                 Close();
             }
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Form3 filtruj = new Form3();
-            Hide();
-            filtruj.ShowDialog();
-            Close();
+            
         }
     }
 }

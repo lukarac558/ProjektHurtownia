@@ -1,6 +1,6 @@
 ﻿namespace ProjektHurtownia.Forms
 {
-    partial class Form4
+    partial class Zamowienie
     {
         /// <summary>
         /// Required designer variable.

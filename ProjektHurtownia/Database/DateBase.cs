@@ -597,6 +597,7 @@ namespace ProjektHurtownia
                     products += item.ProductId + ", ";
                 products = products.Remove(products.Length - 2, 2);
                 products += ')';
+                list.Clear();
             }
 
             basicQuery += products + "ORDER BY unit_price " + orderBy;

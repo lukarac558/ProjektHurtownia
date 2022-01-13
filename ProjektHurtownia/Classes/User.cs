@@ -16,10 +16,10 @@ namespace ProjektHurtownia
         string surname;
         string city;
         string street;
-        int residenceNumber;
+        string residenceNumber;
         string postcode;
 
-        public User(string login, string password, string name, string surname, string city, string street, int residenceNumber, string postcode)
+        public User(string login, string password, string name, string surname, string city, string street, string residenceNumber, string postcode)
         {
             this.Login = login;
             this.Password = password;
@@ -40,7 +40,7 @@ namespace ProjektHurtownia
         public string Surname { get => surname; set => surname = value; }
         public string City { get => city; set => city = value; }
         public string Street { get => street; set => street = value; }
-        public int ResidenceNumber { get => residenceNumber; set => residenceNumber = value; }
+        public string ResidenceNumber { get => residenceNumber; set => residenceNumber = value; }
         public string Postcode { get => postcode; set => postcode = value; }
     }
 }
