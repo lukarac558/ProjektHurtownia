@@ -35,15 +35,15 @@ namespace ProjektHurtownia.Forms
             if (disciplineId <= 0)
                 error += "Wprowadzona dyscyplina nie istnieje jeszcze w bazie.";
 
-            int providereId = DateBase.GetDisciplineId(providerTextBox.Text);
-            if (providereId <= 0)
+            int providerId = DateBase.GetDisciplineId(providerTextBox.Text);
+            if (providerId <= 0)
                 error += "Wprowadzony dostawca nie istnieje jeszcze w bazie.";
 
             if(error != "")
                 MessageBox.Show(error, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
-                DateBase.AddNewProduct(new Product(0, productNameTextBox.Text, typeId, disciplineId, Convert.ToInt32(countUpDown.Value), Convert.ToDouble(priceUpDown.Value), providereId));
+                DateBase.AddNewProduct(new Product(0, productNameTextBox.Text, typeId, disciplineId, Convert.ToInt32(countUpDown.Value), Convert.ToDouble(priceUpDown.Value), providerId));
 
                 MessageBox.Show("Poprawnie dodano produkt do bazy. Nastąpi powrót do panelu wyboru.");
 

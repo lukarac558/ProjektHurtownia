@@ -12,7 +12,7 @@ namespace ProjektHurtownia.Forms
 {
     public partial class CurrentOrders : Form
     {
-        public CurrentOrders() // dodać opcję zwrotu zawówionych produktów, kupione produkty w danym okresie czasu(użytkownik wybiera), wydatki itp.
+        public CurrentOrders() // dodać opcję zwrotu zawówionych produktów(jeśli nie minął termin zwrotu)
         {
             InitializeComponent();
         }

@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Provider.cs" />
     <Compile Include="Classes\Sha1.cs" />
     <Compile Include="Database\DateBase.cs" />
     <Compile Include="Forms\AddProduct.cs">
@@ -109,6 +110,12 @@
     <Compile Include="Forms\Register.Designer.cs">
       <DependentUpon>Register.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\SearchByName.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SearchByName.Designer.cs">
+      <DependentUpon>SearchByName.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\SelectionPanel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -148,6 +155,9 @@
     <EmbeddedResource Include="Forms\Register.resx">
       <DependentUpon>Register.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SearchByName.resx">
+      <DependentUpon>SearchByName.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\SelectionPanel.resx">
       <DependentUpon>SelectionPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -181,5 +191,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

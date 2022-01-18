@@ -149,6 +149,7 @@ namespace ProjektHurtownia.Forms
             // 
             this.passwordTextBox.Location = new System.Drawing.Point(420, 155);
             this.passwordTextBox.Name = "passwordTextBox";
+            this.passwordTextBox.PasswordChar = '*';
             this.passwordTextBox.Size = new System.Drawing.Size(100, 20);
             this.passwordTextBox.TabIndex = 10;
             // 
@@ -156,6 +157,7 @@ namespace ProjektHurtownia.Forms
             // 
             this.password2TextBox.Location = new System.Drawing.Point(420, 203);
             this.password2TextBox.Name = "password2TextBox";
+            this.password2TextBox.PasswordChar = '*';
             this.password2TextBox.Size = new System.Drawing.Size(100, 20);
             this.password2TextBox.TabIndex = 11;
             // 

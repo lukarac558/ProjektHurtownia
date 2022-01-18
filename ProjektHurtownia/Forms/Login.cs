@@ -21,8 +21,6 @@ namespace ProjektHurtownia
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
             //DateBase.AddNewType("Rolki");
             //int typeId = DateBase.GetTypeId(textBox2.Text);
             // if (typeId > 0)
@@ -39,25 +37,26 @@ namespace ProjektHurtownia
             // else
             //     MessageBox.Show("Podany typ nie istnieje.");
             // DateBase.Register(new User("login", "pass", "Jan", "Kowalski", "Rybnik","Gliwicka",75,"44-300"));
-        }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-
             DateBase.Login(textBox7.Text, Sha1.HashPassword(textBox8.Text));
 
             if (DateBase.idUser > 0)
             {
-                Filtering filtracja = new Filtering();
+                SelectionPanel panel = new SelectionPanel();
                 Hide();
-                filtracja.ShowDialog();
+                panel.ShowDialog();
                 Close();
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
-            
+            StartPage start = new StartPage();
+            Hide();
+            start.ShowDialog();
+            Close();
         }
     }
 }

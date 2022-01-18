@@ -10,12 +10,14 @@ using System.Data;
 using Dapper;
 using System.Data.Common;
 using System.Security.Cryptography;
+using ProjektHurtownia.Classes;
 
 namespace ProjektHurtownia
 {
     class DateBase
     {
         public static int idUser = -1;
+        public static string permission = "";
         private static DateBase instance = new DateBase();
         private DateBase() { }
 
@@ -26,7 +28,7 @@ namespace ProjektHurtownia
 
         public static void Login(string login, string password)
         {
-            string query = "SELECT user_id FROM [user] WHERE login=@Login AND password=@Password";
+            string query = "SELECT user_id,permission FROM [user] WHERE login=@Login AND password=@Password";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -42,6 +44,7 @@ namespace ProjektHurtownia
                     {
                         rd.Read();
                         idUser = rd.GetInt32(0);
+                        permission = rd.GetString(1);
                     }
                     else
                         MessageBox.Show("Niepoprawne dane");
@@ -51,6 +54,12 @@ namespace ProjektHurtownia
                     MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
+        }
+
+        public static void LogOut()
+        {
+            DateBase.idUser = -1;
+            permission = "";
         }
 
         public static void Register(User user)
@@ -108,15 +117,15 @@ namespace ProjektHurtownia
             }
         }
 
-        public static void AddNewProvider(string provider)
+        public static void AddNewProvider(string provider, int guaranteePeriod)
         {
-            string query = $"INSERT INTO provider(provider_name) VALUES (@Name)";
+            string query = $"INSERT INTO provider(provider_name, guarantee_period) VALUES (@Name, @Guarantee)";
 
             using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
-                    connection.Execute(query, new { Name = provider });
+                    connection.Execute(query, new { Name = provider, Guarantee = guaranteePeriod });
                 }
                 catch (Exception ex)
                 {
@@ -161,7 +170,7 @@ namespace ProjektHurtownia
 
         public static void AddNewOrder(Order order)
         {
-            string query = $"INSERT INTO order (product_id,user_id,count,order_date,total_cost,) VALUES (@ProductId,@UserId,@Count,@Date,@Cost)";
+            string query = $"INSERT INTO [order] (product_id,user_id,count,order_date,guarantee_end,total_cost) VALUES (@ProductId,@UserId,@Count,@OrderDate,@GuaranteeEnd,@Cost)";
 
             using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -172,8 +181,30 @@ namespace ProjektHurtownia
                         ProductId = order.IdProduct,
                         UserId = order.IdUser,
                         Count = order.Count,
-                        Date = order.OrderDate,
-                        Cost = order.TotalCost
+                        OrderDate = order.OrderDate,
+                        GuaranteeEnd = order.GuaranteeEnd,
+                        Cost = order.TotalCost             
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        public static void UpdateProductCount(int productId, int newUnitQuantity)
+        {
+            string query = $"UPDATE product SET unit_quantity=@NewUnitQuantity WHERE product_id=@ProductId";
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                try
+                {
+                    connection.Execute(query, new
+                    {
+                        newUnitQuantity,
+                        ProductId = productId
                     });
                 }
                 catch (Exception ex)
@@ -327,39 +358,39 @@ namespace ProjektHurtownia
             return -1; // type didn't find in database
         }
 
-        public static string GetProviderById(int providerId)
+        public static Provider GetProviderById(int providerId)
         {
-            string query = $"SELECT provider_name FROM provider WHERE provider_id = @ProviderId";
+            string query = $"SELECT provider_name,guarantee_period FROM provider WHERE provider_id = @ProviderId";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@ProviderId", providerId);
-                string provider = null;
+                Provider prov = null;
 
                 try
                 {
                     connection.Open();
-                    SqlDataReader rd = command.ExecuteReader();
-                    if (rd.HasRows)
+                    SqlDataReader provider = command.ExecuteReader();
+                    if (provider.HasRows)
                     {
-                        rd.Read();
-                        provider = rd.GetString(0);
+                        provider.Read();
+                        prov = new Provider(providerId, provider[0].ToString(), (short)provider[1]);
                     }
                     else
-                        MessageBox.Show("Niepoprawne dane");
+                        MessageBox.Show("Nie stnieje dostawca o takim id.");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
-                return provider;
+                return prov;
             }
         }
 
         public static Product GetProduct(int productId)
         {
-            string query = $"SELECT product_id, product_name, type_id, discipline_id, unit_quantity,unit_price,provider_id FROM product WHERE productId = @ProductId";
+            string query = $"SELECT product_id, product_name, type_id, discipline_id, unit_quantity,unit_price,provider_id FROM product WHERE product_id = @ProductId";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -374,12 +405,11 @@ namespace ProjektHurtownia
                     if (product.HasRows)
                     {
                         product.Read();
-
                         pro = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
                                     Int32.Parse(product[4].ToString()), Double.Parse(product[5].ToString()), Int32.Parse(product[6].ToString()));
                     }
                     else
-                        MessageBox.Show("Nieistnieje produkt o takim id");
+                        MessageBox.Show("Nie istnieje produkt o takim id");
                 }
                 catch (Exception ex)
                 {
@@ -389,10 +419,10 @@ namespace ProjektHurtownia
             }
         }
 
-        public static List<Product> SearchAvailableProducts() // zwraca wszystkie dostępne produkty
+        public static List<Product> SearchNotAvailableProducts()
         {
             List<Product> list = new List<Product>();
-            string query = $"SELECT product_id, product_name, type_id, discipline_id, unit_quantity,unit_price,provider_id FROM product WHERE unit_quantity>0";
+            string query = $"SELECT product_id, product_name, type_id, discipline_id, unit_price,provider_id FROM product WHERE unit_quantity=0";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -405,7 +435,7 @@ namespace ProjektHurtownia
                         foreach (DbDataRecord product in rd)
                         {
                             Product p = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
-                                Int32.Parse(product[4].ToString()), Double.Parse(product[5].ToString()), Int32.Parse(product[6].ToString()));
+                                0, Double.Parse(product[4].ToString()), Int32.Parse(product[5].ToString()));
                             list.Add(p);
                         }
                         return list;
@@ -526,7 +556,7 @@ namespace ProjektHurtownia
             var list = new List<Product>();
             
             string basicQuery = $"SELECT product_id,product_name,p.type_id,p.discipline_id,unit_quantity,unit_price,p.provider_id FROM product p INNER JOIN provider pr ON " +
-                $"p.provider_id=pr.provider_id INNER JOIN product_type pt ON p.type_id=pt.type_id INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id WHERE ";
+                $"p.provider_id=pr.provider_id INNER JOIN product_type pt ON p.type_id=pt.type_id INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id WHERE (unit_quantity>0) AND ";
 
             string typeQuery = $"(pt.product_type LIKE ";
             typeQuery = PrepareQuery(typeQuery, selectedTypes);
@@ -579,12 +609,41 @@ namespace ProjektHurtownia
             }
         }
 
-        /*
+        
         public static List<Product> FilterByProductName(string productName)
         {
+            var list = new List<Product>();
 
-        }
-        */      
+            string basicQuery = $"SELECT product_id,product_name,p.type_id,p.discipline_id,unit_quantity,unit_price,p.provider_id FROM product p INNER JOIN provider pr ON " +
+                $"p.provider_id=pr.provider_id INNER JOIN product_type pt ON p.type_id=pt.type_id INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id" +
+                $" WHERE (unit_quantity>0) AND (LOWER(product_name) LIKE LOWER(@ProductName))";
+         
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(basicQuery, connection);
+                command.Parameters.AddWithValue("@ProductName", '%' + productName + '%');
+
+                try
+                {
+                    connection.Open();
+                    using (var rd = command.ExecuteReader())
+                    {
+                        foreach (DbDataRecord product in rd)
+                        {
+                            Product p = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
+                                Int32.Parse(product[4].ToString()), Double.Parse(product[5].ToString()), Int32.Parse(product[6].ToString()));
+                            list.Add(p);
+                        }
+                        return list;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return null;
+            }
+        }           
         public static List<Product> OrderProductsByPrice(List<Product> list, string orderBy)
         {
             string products = "(";
@@ -625,6 +684,48 @@ namespace ProjektHurtownia
                 }
                 return null;
             }
+        }
+
+        public static List<Order> GetUserOrders() // zwraca zamówienia danego użytkownika
+        {
+            List<Order> list = new List<Order>();
+            string query = $"SELECT product_id, product_name, type_id, discipline_id, unit_quantity,unit_price,provider_id FROM product WHERE unit_quantity>0";
+            return list;
+            /*
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                try
+                {
+                    connection.Open();
+                    using (var rd = command.ExecuteReader())
+                    {
+                        foreach (DbDataRecord product in rd)
+                        {
+                            Order o = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
+                               Int32.Parse(product[4].ToString()), Double.Parse(product[5].ToString()), Int32.Parse(product[6].ToString()));
+                            list.Add(p);
+                        }
+                        return list;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return null;
+            }
+            */
+        }
+        
+        public static void CancelOrder(int orderId) // anuluje zamówienie i zwraca produkty z powrotem
+        {
+            // korzysta z funkcji IsReturnPossible
+        }
+
+        private static bool IsReturnPossible(int orderId) // zwraca true jeśli nie minął termin zwrotu, false jeśli minął
+        {
+            return true;
         }
     }
 }

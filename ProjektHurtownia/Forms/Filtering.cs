@@ -50,19 +50,24 @@ namespace ProjektHurtownia.Forms
             double maximumPrice = (double)numericUpDown2.Value;
 
             actualFiltered = DateBase.FilterProducts(selectedTypes, selectedDisciplines, selectedProviders, minimumPrice, maximumPrice);
-            dataGridView1.DataSource = actualFiltered.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Cena = o.UnitPrice }).ToList();
+            dataGridView1.DataSource = actualFiltered.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
 
             if(!ifInsert)
             {
                 DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn();
-                makeOrderButton.Name = "makeOrder";
-                makeOrderButton.Text = "Zloz zamowienie";
-                int columnIndex = 3;
+                makeOrderButton.Name = "Zamów teraz";
+                makeOrderButton.Text = "Złóż zamówienie";
+                int columnIndex = 4;
                 makeOrderButton.UseColumnTextForButtonValue = true;
                 dataGridView1.Columns.Insert(columnIndex, makeOrderButton);
                 ifInsert = true;
             }
-            
+
+            // dataGridView1.Columns["Identyfikator"].Visible = false; // Aby ukryć identyfikator, należy odkomentować tę linię i zakomentować jedną niżej
+            dataGridView1.Columns["Identyfikator"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["IlośćJednostkowa"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["CenaJednostkowa"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;            
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
         
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -74,27 +79,35 @@ namespace ProjektHurtownia.Forms
                 if (comboBox1.SelectedItem.Equals("Sortuj rosnąco"))
                 {
                     var list = DateBase.OrderProductsByPrice(actualFiltered, "ASC");
-                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Cena = o.UnitPrice }).ToList();
+                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
                 }
                 else if (comboBox1.SelectedItem.Equals("Sortuj malejąco"))
                 {
                     var list = DateBase.OrderProductsByPrice(actualFiltered, "DESC");
-                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Cena = o.UnitPrice }).ToList();
+                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
                 }
             }
         }
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == dataGridView1.Columns["makeOrder"].Index && e.RowIndex >= 0)
+            if (e.ColumnIndex == dataGridView1.Columns["Zamów teraz"].Index && e.RowIndex >= 0)
             {
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
                 int id = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
-                Zamowienie zamowienie = new Zamowienie(id);
+                OrderDetails order = new OrderDetails(id);
                 Hide();
-                zamowienie.ShowDialog();
+                order.ShowDialog();
                 Close();
                 // przenosi do nowego formularza, gdzie użytkownik wybiera ilość i składa zamówienie
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            SelectionPanel welcome = new SelectionPanel();
+            Hide();
+            welcome.ShowDialog();
+            Close();
         }
     }
 }

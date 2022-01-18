@@ -13,15 +13,17 @@ namespace ProjektHurtownia
         int idUser;
         int count;
         DateTime orderDate;
+        DateTime guaranteeEnd;
         double totalCost;
 
-        public Order(int idOrder, int idProduct, int idUser, int count, DateTime orderDate, double totalCost)
+        public Order(int idOrder, int idProduct, int idUser, int count, DateTime orderDate, DateTime guaranteeEnd, double totalCost)
         {
             this.IdOrder = idOrder;
             this.IdProduct = idProduct;
             this.IdUser = idUser;
             this.Count = count;
             this.OrderDate = orderDate;
+            this.GuaranteeEnd = guaranteeEnd;
             this.TotalCost = totalCost;
         }
 
@@ -30,6 +32,7 @@ namespace ProjektHurtownia
         public int IdUser { get => idUser; set => idUser = value; }
         public int Count { get => count; set => count = value; }
         public DateTime OrderDate { get => orderDate; set => orderDate = value; }
+        public DateTime GuaranteeEnd { get => guaranteeEnd; set => guaranteeEnd = value; }
         public double TotalCost { get => totalCost; set => totalCost = value; }
     }
 }
