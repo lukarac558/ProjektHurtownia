@@ -129,7 +129,10 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    if (ex is SqlException)
+                        MessageBox.Show("Podany dostawca istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -146,6 +149,9 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
+                    if(ex is SqlException)
+                        MessageBox.Show("Podany typ istniał już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
                     MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
@@ -163,7 +169,10 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    if (ex is SqlException)
+                        MessageBox.Show("Podana dyscyplina istniała już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -608,8 +617,7 @@ namespace ProjektHurtownia
                 return null;
             }
         }
-
-        
+       
         public static List<Product> FilterByProductName(string productName)
         {
             var list = new List<Product>();
@@ -644,6 +652,7 @@ namespace ProjektHurtownia
                 return null;
             }
         }           
+
         public static List<Product> OrderProductsByPrice(List<Product> list, string orderBy)
         {
             string products = "(";
@@ -689,22 +698,22 @@ namespace ProjektHurtownia
         public static List<Order> GetUserOrders() // zwraca zamówienia danego użytkownika
         {
             List<Order> list = new List<Order>();
-            string query = $"SELECT product_id, product_name, type_id, discipline_id, unit_quantity,unit_price,provider_id FROM product WHERE unit_quantity>0";
-            return list;
-            /*
+            string query = $"SELECT order_id,product_id,count,order_date,guarantee_end,total_cost FROM [order] WHERE user_id=@UserId";
+
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@UserId", DateBase.idUser);
                 try
                 {
                     connection.Open();
                     using (var rd = command.ExecuteReader())
                     {
-                        foreach (DbDataRecord product in rd)
+                        foreach (DbDataRecord order in rd)
                         {
-                            Order o = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
-                               Int32.Parse(product[4].ToString()), Double.Parse(product[5].ToString()), Int32.Parse(product[6].ToString()));
-                            list.Add(p);
+                            Order o = new Order(Int32.Parse(order[0].ToString()), Int32.Parse(order[1].ToString()), DateBase.idUser, Int32.Parse(order[2].ToString()),
+                               DateTime.Parse(order[3].ToString()), DateTime.Parse(order[4].ToString()), Double.Parse(order[5].ToString()));
+                            list.Add(o);
                         }
                         return list;
                     }
@@ -715,17 +724,69 @@ namespace ProjektHurtownia
                 }
                 return null;
             }
-            */
-        }
-        
-        public static void CancelOrder(int orderId) // anuluje zamówienie i zwraca produkty z powrotem
-        {
-            // korzysta z funkcji IsReturnPossible
         }
 
-        private static bool IsReturnPossible(int orderId) // zwraca true jeśli nie minął termin zwrotu, false jeśli minął
+        private static bool IsReturnPossible(int orderId) // wyświetla odpowiednie wartości w kolumnie datagridview w zależności od tego co zwraca funkcja
         {
-            return true;
+            string query = $"SELECT guarantee_end FROM [order] WHERE order_id=@OrderId";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@OrderId", orderId);
+                try
+                {
+                    connection.Open();
+                    SqlDataReader rd = command.ExecuteReader();
+                    if (rd.HasRows)
+                    {
+                        rd.Read();
+                        DateTime guaranteeEnd = rd.GetDateTime(0);
+                        DateTime timeNow = DateTime.Now;
+
+                        DateTime date1 = new DateTime(guaranteeEnd.Year, guaranteeEnd.Month, guaranteeEnd.Day, guaranteeEnd.Hour, guaranteeEnd.Minute, 0);
+                        DateTime date2 = new DateTime(timeNow.Year, timeNow.Month, timeNow.Day, timeNow.Hour, timeNow.Minute, timeNow.Second);
+                        int result = DateTime.Compare(date1, date2);
+
+                        if (result == 1)
+                            return true; // obecna data jest mniejsza od terminu zwrotu
+                        else
+                            return false; // minął czas zwrotu
+                    }
+                    else
+                        MessageBox.Show("Niepoprawne dane");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return false;
+            }
         }
+
+        public static void CancelOrder(int orderId, int productId, int newUnitQuantity)
+        {
+            if (IsReturnPossible(orderId))
+            {
+                string query = $"DELETE FROM [order] WHERE order_id=@OrderId";
+
+                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                {
+                    try
+                    {
+                        connection.Execute(query, new { OrderId = orderId });
+                        UpdateProductCount(productId, newUnitQuantity);
+                        MessageBox.Show("Pomyślnie dokonano zwrotu.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                     MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            else
+                MessageBox.Show("Zwrot niemożliwy, gdyż upłynął termin.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+        
     }
 }

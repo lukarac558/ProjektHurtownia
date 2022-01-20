@@ -122,7 +122,7 @@ namespace ProjektHurtownia.Forms
             this.Controls.Add(this.label1);
             this.Name = "SelectionPanel";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "SelectionPanel";
+            this.Text = "Wybór operacji";
             this.ResumeLayout(false);
             this.PerformLayout();
 

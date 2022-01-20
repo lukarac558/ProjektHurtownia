@@ -61,7 +61,10 @@ namespace ProjektHurtownia.Forms
 
         private void previewOrdersButton_Click(object sender, EventArgs e)
         {
-
+            CurrentOrders orders = new CurrentOrders();
+            Hide();
+            orders.ShowDialog();
+            Close();
         }
 
         private void button1_Click(object sender, EventArgs e)

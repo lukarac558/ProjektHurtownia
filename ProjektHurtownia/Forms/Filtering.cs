@@ -20,7 +20,7 @@ namespace ProjektHurtownia.Forms
             var typeList = DateBase.GetAllTypes();
             var disciplineList = DateBase.GetAllDisciplines();
             var providerList = DateBase.GetAllProviders();
-            foreach (var type in typeList) // dodanie wszystkich typów produktów do listy wyborów
+            foreach (var type in typeList)
                 checkedListBox1.Items.Add(type);
             foreach (var discipline in disciplineList)
                 checkedListBox2.Items.Add(discipline);

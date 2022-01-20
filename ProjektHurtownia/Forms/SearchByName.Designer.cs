@@ -130,7 +130,7 @@ namespace ProjektHurtownia.Forms
             this.Controls.Add(this.productNameTextBox);
             this.Name = "SearchByName";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "SearchByName";
+            this.Text = "Filtracja po nazwie, sortowanie i niedostępne produkty";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

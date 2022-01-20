@@ -36,13 +36,13 @@ namespace ProjektHurtownia.Forms
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.providerTextBox = new System.Windows.Forms.TextBox();
-            this.disciplineTextBox = new System.Windows.Forms.TextBox();
-            this.typeTextBox = new System.Windows.Forms.TextBox();
             this.productNameTextBox = new System.Windows.Forms.TextBox();
             this.countUpDown = new System.Windows.Forms.NumericUpDown();
             this.priceUpDown = new System.Windows.Forms.NumericUpDown();
             this.button2 = new System.Windows.Forms.Button();
+            this.typeComboBox = new System.Windows.Forms.ComboBox();
+            this.disciplineComboBox = new System.Windows.Forms.ComboBox();
+            this.providerComboBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.countUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.priceUpDown)).BeginInit();
             this.SuspendLayout();
@@ -111,27 +111,6 @@ namespace ProjektHurtownia.Forms
             this.label1.TabIndex = 19;
             this.label1.Text = "Nazwa";
             // 
-            // providerTextBox
-            // 
-            this.providerTextBox.Location = new System.Drawing.Point(459, 299);
-            this.providerTextBox.Name = "providerTextBox";
-            this.providerTextBox.Size = new System.Drawing.Size(100, 20);
-            this.providerTextBox.TabIndex = 18;
-            // 
-            // disciplineTextBox
-            // 
-            this.disciplineTextBox.Location = new System.Drawing.Point(459, 188);
-            this.disciplineTextBox.Name = "disciplineTextBox";
-            this.disciplineTextBox.Size = new System.Drawing.Size(100, 20);
-            this.disciplineTextBox.TabIndex = 15;
-            // 
-            // typeTextBox
-            // 
-            this.typeTextBox.Location = new System.Drawing.Point(459, 148);
-            this.typeTextBox.Name = "typeTextBox";
-            this.typeTextBox.Size = new System.Drawing.Size(100, 20);
-            this.typeTextBox.TabIndex = 14;
-            // 
             // productNameTextBox
             // 
             this.productNameTextBox.Location = new System.Drawing.Point(459, 107);
@@ -191,7 +170,7 @@ namespace ProjektHurtownia.Forms
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(221, 350);
+            this.button2.Location = new System.Drawing.Point(96, 569);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(87, 44);
             this.button2.TabIndex = 27;
@@ -199,11 +178,38 @@ namespace ProjektHurtownia.Forms
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // typeComboBox
+            // 
+            this.typeComboBox.FormattingEnabled = true;
+            this.typeComboBox.Location = new System.Drawing.Point(459, 148);
+            this.typeComboBox.Name = "typeComboBox";
+            this.typeComboBox.Size = new System.Drawing.Size(100, 21);
+            this.typeComboBox.TabIndex = 28;
+            // 
+            // disciplineComboBox
+            // 
+            this.disciplineComboBox.FormattingEnabled = true;
+            this.disciplineComboBox.Location = new System.Drawing.Point(459, 188);
+            this.disciplineComboBox.Name = "disciplineComboBox";
+            this.disciplineComboBox.Size = new System.Drawing.Size(100, 21);
+            this.disciplineComboBox.TabIndex = 29;
+            // 
+            // providerComboBox
+            // 
+            this.providerComboBox.FormattingEnabled = true;
+            this.providerComboBox.Location = new System.Drawing.Point(459, 299);
+            this.providerComboBox.Name = "providerComboBox";
+            this.providerComboBox.Size = new System.Drawing.Size(100, 21);
+            this.providerComboBox.TabIndex = 30;
+            // 
             // AddProduct
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1136, 825);
+            this.Controls.Add(this.providerComboBox);
+            this.Controls.Add(this.disciplineComboBox);
+            this.Controls.Add(this.typeComboBox);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.priceUpDown);
             this.Controls.Add(this.countUpDown);
@@ -213,14 +219,11 @@ namespace ProjektHurtownia.Forms
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.providerTextBox);
-            this.Controls.Add(this.disciplineTextBox);
-            this.Controls.Add(this.typeTextBox);
             this.Controls.Add(this.productNameTextBox);
             this.Controls.Add(this.button1);
             this.Name = "AddProduct";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "AddProduct";
+            this.Text = "Dodawanie produktu";
             ((System.ComponentModel.ISupportInitialize)(this.countUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.priceUpDown)).EndInit();
             this.ResumeLayout(false);
@@ -237,12 +240,12 @@ namespace ProjektHurtownia.Forms
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox providerTextBox;
-        private System.Windows.Forms.TextBox disciplineTextBox;
-        private System.Windows.Forms.TextBox typeTextBox;
         private System.Windows.Forms.TextBox productNameTextBox;
         private System.Windows.Forms.NumericUpDown countUpDown;
         private System.Windows.Forms.NumericUpDown priceUpDown;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.ComboBox typeComboBox;
+        private System.Windows.Forms.ComboBox disciplineComboBox;
+        private System.Windows.Forms.ComboBox providerComboBox;
     }
 }

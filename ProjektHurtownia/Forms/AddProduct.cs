@@ -16,33 +16,35 @@ namespace ProjektHurtownia.Forms
         public AddProduct()
         {
             InitializeComponent();
+            var typeList = DateBase.GetAllTypes();
+            foreach (var type in typeList)
+                typeComboBox.Items.Add(type);
+            var disciplineList = DateBase.GetAllDisciplines();
+            foreach (var discipline in disciplineList)
+                disciplineComboBox.Items.Add(discipline);
+            var providerList = DateBase.GetAllProviders();
+            foreach (var provider in providerList)
+                providerComboBox.Items.Add(provider);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]{3,50}$");
+            Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ -]{3,50}$");
 
             string error = "";
 
             if (!productName.IsMatch(productNameTextBox.Text))
                 error = "Należy wprowadzić nazwę produktu. Minimalna liczba znaków to 3 a maksymalna 50.";
 
-            int typeId = DateBase.GetTypeId(typeTextBox.Text);
-            if (typeId <= 0)
-                error += "Wprowadzony typ nie istnieje jeszcze w bazie.";
-
-            int disciplineId = DateBase.GetDisciplineId(disciplineTextBox.Text);
-            if (disciplineId <= 0)
-                error += "Wprowadzona dyscyplina nie istnieje jeszcze w bazie.";
-
-            int providerId = DateBase.GetDisciplineId(providerTextBox.Text);
-            if (providerId <= 0)
-                error += "Wprowadzony dostawca nie istnieje jeszcze w bazie.";
-
             if(error != "")
                 MessageBox.Show(error, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
+                int typeId, disciplineId, providerId;
+                typeId = DateBase.GetTypeId(typeComboBox.Text);
+                disciplineId = DateBase.GetDisciplineId(disciplineComboBox.Text);
+                providerId = DateBase.GetProviderId(providerComboBox.Text);
+
                 DateBase.AddNewProduct(new Product(0, productNameTextBox.Text, typeId, disciplineId, Convert.ToInt32(countUpDown.Value), Convert.ToDouble(priceUpDown.Value), providerId));
 
                 MessageBox.Show("Poprawnie dodano produkt do bazy. Nastąpi powrót do panelu wyboru.");
@@ -52,17 +54,6 @@ namespace ProjektHurtownia.Forms
                 welcome.ShowDialog();
                 Close();
             }
-
-            /*
-            DateBase.AddNewProduct(new Product(0,"Piłka gumowa", 5, 1, 100, 29.99, 13));
-            DateBase.AddNewProduct(new Product(0, "Bramka miniaturowa", 4, 1, 50, 239.99, 14));
-            DateBase.AddNewProduct(new Product(0, "Piłka UEFA", 5, 1, 10, 120.00, 13));
-            DateBase.AddNewProduct(new Product(0, "Rękawice bramkarskie", 6, 1, 10, 119.49, 14));
-            DateBase.AddNewProduct(new Product(0, "Piłka do koszykówki", 5, 1, 100, 80.00, 13));
-            DateBase.AddNewProduct(new Product(0, "Piłka ALL-STARS", 5, 2, 3, 199.99, 13));
-            DateBase.AddNewProduct(new Product(0, "Rękawice narciarskie", 6, 3, 100, 79.99, 14));
-            DateBase.AddNewProduct(new Product(0, "Bramka standardowa", 4, 1, 50, 400.00, 14));
-            */
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -71,6 +62,21 @@ namespace ProjektHurtownia.Forms
             Hide();
             welcome.ShowDialog();
             Close();
+        }
+
+        private void checkTypesButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkDisciplineButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkProviderButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

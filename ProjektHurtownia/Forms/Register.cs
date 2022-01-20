@@ -28,9 +28,9 @@ namespace ProjektHurtownia.Forms
             Regex residenceNumber = new Regex(@"^[0-9]{1,4}[a-zA-Z]{0,1}$");
             Regex postcode = new Regex(@"^[0-9]{2}(?:-[0-9]{3})?$");
             Regex name = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]{3,20}$");
-            Regex surname = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]{2,30}$");
-            Regex street = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]{3,60}$");
-            Regex city = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]{2,30}$");
+            Regex surname = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ -]{2,30}$");
+            Regex street = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ -]{3,60}$");
+            Regex city = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ -]{2,30}$");
 
             string error = "";
 
@@ -71,11 +71,11 @@ namespace ProjektHurtownia.Forms
                 DateBase.Register(new User(loginTextBox.Text, Sha1.HashPassword(passwordTextBox.Text), nameTextBox.Text, surnameTextBox.Text, cityTextBox.Text,
                     streetTextBox.Text, residenceNumberTextBox.Text, postcodeTextBox.Text));
 
-                MessageBox.Show("Poprawnie utworzono konto. Zostałeś automatycznie zalogowany na konto.");
+                MessageBox.Show("Poprawnie utworzono konto. Od teraz możesz zalogować się na konto.");
 
-                SelectionPanel welcome = new SelectionPanel();
+                Login loginL = new Login();
                 Hide();
-                welcome.ShowDialog();
+                loginL.ShowDialog();
                 Close();
             }          
         }

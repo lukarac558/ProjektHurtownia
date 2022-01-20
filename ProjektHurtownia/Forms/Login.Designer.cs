@@ -104,7 +104,7 @@ namespace ProjektHurtownia
             this.Controls.Add(this.button1);
             this.Name = "Login";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form1";
+            this.Text = "Logowanie";
             this.ResumeLayout(false);
             this.PerformLayout();
 

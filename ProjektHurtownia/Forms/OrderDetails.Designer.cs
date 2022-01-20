@@ -296,7 +296,7 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "OrderDetails";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form4";
+            this.Text = "Składanie zamówienia";
             ((System.ComponentModel.ISupportInitialize)(this.countUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
