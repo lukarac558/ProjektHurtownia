@@ -50,6 +50,7 @@ namespace ProjektHurtownia
             // textBox7
             // 
             this.textBox7.Location = new System.Drawing.Point(481, 169);
+            this.textBox7.MaxLength = 20;
             this.textBox7.Name = "textBox7";
             this.textBox7.Size = new System.Drawing.Size(100, 20);
             this.textBox7.TabIndex = 14;
@@ -58,6 +59,7 @@ namespace ProjektHurtownia
             // 
             this.textBox8.Font = new System.Drawing.Font("Segoe MDL2 Assets", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.textBox8.Location = new System.Drawing.Point(481, 224);
+            this.textBox8.MaxLength = 20;
             this.textBox8.Name = "textBox8";
             this.textBox8.PasswordChar = '*';
             this.textBox8.Size = new System.Drawing.Size(100, 18);

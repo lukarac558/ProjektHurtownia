@@ -13,10 +13,11 @@ namespace ProjektHurtownia.Forms
     public partial class Filtering : Form
     {
         private List<Product> actualFiltered = new List<Product>();
-        private bool ifInsert = false;
         public Filtering()
         {
             InitializeComponent();
+            ((TextBox)numericUpDown1.Controls[1]).MaxLength = 8;
+            ((TextBox)numericUpDown2.Controls[1]).MaxLength = 8;
             var typeList = DateBase.GetAllTypes();
             var disciplineList = DateBase.GetAllDisciplines();
             var providerList = DateBase.GetAllProviders();
@@ -26,12 +27,48 @@ namespace ProjektHurtownia.Forms
                 checkedListBox2.Items.Add(discipline);
             foreach (var provider in providerList)
                 checkedListBox3.Items.Add(provider);
-            string[] sortOptions = { "Sortuj rosnąco", "Sortuj malejąco" };
-            comboBox1.Items.AddRange(sortOptions);
+        }
+
+        void AddProviderColumn()
+        {
+            DataGridViewColumn provider = new DataGridViewColumn();
+            DataGridViewCell cell = new DataGridViewTextBoxCell();
+            provider.CellTemplate = cell;
+            provider.Name = "Marka";
+            int columnIndex = 4;
+            dataGridView1.Columns.Insert(columnIndex, provider);
+            DataGridViewRow row;
+
+            for (int i=0;i<actualFiltered.Count; i++)
+            {
+                row = dataGridView1.Rows[i];
+                int productId = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
+                Product product = DateBase.GetProduct(productId);
+                dataGridView1.Rows[i].Cells[4].Value = DateBase.GetProviderById(product.ProviderId).ProviderName;
+            }
+        }
+
+        private void AddOrderButtonColumn()
+        {
+            DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn();
+            makeOrderButton.Name = "Dodaj do koszyka";
+            makeOrderButton.Text = "Wybierz";
+            int columnIndex = 5;
+            makeOrderButton.UseColumnTextForButtonValue = true;
+            dataGridView1.Columns.Insert(columnIndex, makeOrderButton);          
+        }
+
+        private void ChangeColumnsAlignment()
+        {
+            dataGridView1.Columns["Identyfikator"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["Ilość"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["Cena"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            dataGridView1.Columns.Clear();
             var selectedTypes = new List<string>();
             var selectedDisciplines = new List<string>();
             var selectedProviders = new List<string>();
@@ -50,55 +87,43 @@ namespace ProjektHurtownia.Forms
             double maximumPrice = (double)numericUpDown2.Value;
 
             actualFiltered = DateBase.FilterProducts(selectedTypes, selectedDisciplines, selectedProviders, minimumPrice, maximumPrice);
-            dataGridView1.DataSource = actualFiltered.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
+            dataGridView1.DataSource = actualFiltered.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
 
-            if(!ifInsert)
-            {
-                DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn();
-                makeOrderButton.Name = "Zamów teraz";
-                makeOrderButton.Text = "Złóż zamówienie";
-                int columnIndex = 4;
-                makeOrderButton.UseColumnTextForButtonValue = true;
-                dataGridView1.Columns.Insert(columnIndex, makeOrderButton);
-                ifInsert = true;
-            }
+            AddProviderColumn();
+            AddOrderButtonColumn();
+            ChangeColumnsAlignment();
 
-            // dataGridView1.Columns["Identyfikator"].Visible = false; // Aby ukryć identyfikator, należy odkomentować tę linię i zakomentować jedną niżej
-            dataGridView1.Columns["Identyfikator"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridView1.Columns["IlośćJednostkowa"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridView1.Columns["CenaJednostkowa"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;            
-            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-        }
-        
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
             if (actualFiltered.Count == 0)
-                MessageBox.Show("Brak produktów do sortowania", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            {
+                orderASCButton.Visible = false;
+                orderDESCButton.Visible = false;
+                MessageBox.Show("Nie zwrócono żadnych wyników. Zmień filtry.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);            
+            }
             else
             {
-                if (comboBox1.SelectedItem.Equals("Sortuj rosnąco"))
-                {
-                    var list = DateBase.OrderProductsByPrice(actualFiltered, "ASC");
-                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
-                }
-                else if (comboBox1.SelectedItem.Equals("Sortuj malejąco"))
-                {
-                    var list = DateBase.OrderProductsByPrice(actualFiltered, "DESC");
-                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
-                }
+                orderASCButton.Visible = true;
+                orderDESCButton.Visible = true;
             }
         }
+        
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {}
+
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == dataGridView1.Columns["Zamów teraz"].Index && e.RowIndex >= 0)
+            if (e.ColumnIndex == dataGridView1.Columns["Dodaj do koszyka"].Index && e.RowIndex >= 0)
             {
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-                int id = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
-                OrderDetails order = new OrderDetails(id);
-                Hide();
-                order.ShowDialog();
-                Close();
-                // przenosi do nowego formularza, gdzie użytkownik wybiera ilość i składa zamówienie
+                int count = Int32.Parse(row.Cells["Ilość"].Value.ToString());
+                if (count > 0)
+                {
+                    int id = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
+                    OrderDetails order = new OrderDetails(id);
+                    Hide();
+                    order.ShowDialog();
+                    Close();
+                }
+                else
+                    MessageBox.Show("Brak dostępnych egzemplarzy. Niemożliwe dodanie do koszyka.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -108,6 +133,42 @@ namespace ProjektHurtownia.Forms
             Hide();
             welcome.ShowDialog();
             Close();
+        }
+
+        private void orderASCButton_Click(object sender, EventArgs e)
+        {
+            dataGridView1.Columns.Clear();
+            var list = DateBase.OrderProductsByPrice(actualFiltered, "ASC");
+            dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
+            AddProviderColumn();
+            AddOrderButtonColumn();
+            ChangeColumnsAlignment();
+        }
+
+        private void orderDESCButton_Click(object sender, EventArgs e)
+        {
+            dataGridView1.Columns.Clear();
+            var list = DateBase.OrderProductsByPrice(actualFiltered, "DESC");
+            dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
+            AddProviderColumn();
+            AddOrderButtonColumn();
+            ChangeColumnsAlignment();
+        }
+
+        private void numericUpDown1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar < 48 || e.KeyChar > 57)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void numericUpDown2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar < 48 || e.KeyChar > 57)
+            {
+                e.Handled = true;
+            }
         }
     }
 }

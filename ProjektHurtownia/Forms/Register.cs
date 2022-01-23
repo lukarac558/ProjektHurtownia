@@ -22,7 +22,7 @@ namespace ProjektHurtownia.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Regex login = new Regex(@"^[a-zA-Z][a-zA-Z0-9]{3,20}$");
+            Regex login = new Regex(@"^[a-zA-Z][a-zA-Z0-9]{2,20}$");
             Regex password = new Regex(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$");
             Regex email = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
             Regex residenceNumber = new Regex(@"^[0-9]{1,4}[a-zA-Z]{0,1}$");
@@ -69,7 +69,7 @@ namespace ProjektHurtownia.Forms
             else
             {
                 DateBase.Register(new User(loginTextBox.Text, Sha1.HashPassword(passwordTextBox.Text), nameTextBox.Text, surnameTextBox.Text, cityTextBox.Text,
-                    streetTextBox.Text, residenceNumberTextBox.Text, postcodeTextBox.Text));
+                    streetTextBox.Text, residenceNumberTextBox.Text, postcodeTextBox.Text, emailTextBox.Text));
 
                 MessageBox.Show("Poprawnie utworzono konto. Od teraz możesz zalogować się na konto.");
 

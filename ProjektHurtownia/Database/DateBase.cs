@@ -18,6 +18,7 @@ namespace ProjektHurtownia
     {
         public static int idUser = -1;
         public static string permission = "";
+        public static Dictionary<int, int> cart = new Dictionary<int, int>();
         private static DateBase instance = new DateBase();
         private DateBase() { }
 
@@ -112,9 +113,91 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
+                    if (ex is SqlException)
+                        MessageBox.Show("Podany nazwa produktu istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
                     MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
+        }
+
+        public static void EditProduct(Product product)
+        {
+            string query = $"UPDATE product SET product_name=@Name, type_id=@Type, discipline_id=@Discipline, unit_quantity=@Quantity," +
+                $" unit_price=@Price, provider_id=@Provider WHERE product_id=@ProductId";
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                try
+                {
+                    connection.Execute(query, new
+                    {
+                        Name = product.ProductName,
+                        Type = product.TypeId,
+                        Discipline = product.DisciplineId,
+                        Quantity = product.UnitQuantity,
+                        Price = product.UnitPrice,
+                        Provider = product.ProviderId,
+                        ProductId = product.ProductId
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        private static bool IsProductOrdered(int productId)
+        {
+            string query = $"SELECT COUNT(*) FROM order_position WHERE product_id=@ProductId";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@ProductId", productId);
+                try
+                {
+                    connection.Open();
+                    SqlDataReader rd = command.ExecuteReader();
+                    if(rd.HasRows)
+                    {
+                        rd.Read();
+                        if (rd.GetInt32(0) > 0)
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return true;
+            }
+        }
+
+        public static void DeleteProduct(int productId)
+        {
+            if (!IsProductOrdered(productId))
+            {
+                string query = $"DELETE FROM product WHERE product_id=@ProductId";
+
+                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                {
+                    try
+                    {
+                        connection.Execute(query, new { ProductId = productId });
+                        MessageBox.Show("Pomyślnie usunięto przedmiot.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            else
+                MessageBox.Show("Usunięcie niemożliwe. Wybrany produkt został zamówiony już przez klientów.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         public static void AddNewProvider(string provider, int guaranteePeriod)
@@ -126,6 +209,7 @@ namespace ProjektHurtownia
                 try
                 {
                     connection.Execute(query, new { Name = provider, Guarantee = guaranteePeriod });
+                    MessageBox.Show("Pomyślnie dodano dostawcę do bazy.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
@@ -137,6 +221,83 @@ namespace ProjektHurtownia
             }
         }
 
+        public static void EditProvider(string previousProvider, Provider newProvider)
+        {
+            string query = $"UPDATE provider SET provider_name=@Name, guarantee_period=@Guarantee WHERE provider_name=@PreviosProvider";
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                try
+                {
+                    connection.Execute(query, new
+                    {
+                        Name = newProvider.ProviderName,
+                        Guarantee = newProvider.GuaranteePeriod,
+                        PreviosProvider = previousProvider
+                    });
+                }
+                catch (Exception ex)
+                {
+                    if (ex is SqlException)
+                        MessageBox.Show("Podany dostawca istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        public static bool IsProviderUsed(string provider)
+        {
+            string query = $"SELECT COUNT(*) FROM product p INNER JOIN provider pr ON p.provider_id=pr.provider_id WHERE pr.provider_name=@Provider";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Provider", provider);
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader rd = command.ExecuteReader();
+                    if (rd.HasRows)
+                    {
+                        rd.Read();
+                        if (rd.GetInt32(0) > 0)
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return true;
+            }
+        }
+        public static void DeleteProvider(string provider)
+        {
+            if (!IsProviderUsed(provider))
+            {
+                string query = $"DELETE FROM provider WHERE provider_name=@Provider";
+
+                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                {
+                    try
+                    {
+                        connection.Execute(query, new { Provider = provider });
+                        MessageBox.Show("Pomyślnie usunięto dostawcę.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            else
+                MessageBox.Show("Usunięcie niemożliwe. Dostawca jest wykorzystany w istniejącym produkcie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
         public static void AddNewType(string type)
         {
             string query = $"INSERT INTO product_type(product_type) VALUES (@Type)";
@@ -146,6 +307,7 @@ namespace ProjektHurtownia
                 try
                 {
                     connection.Execute(query, new { Type = type });
+                    MessageBox.Show("Pomyślnie dodano typ do bazy.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
@@ -155,6 +317,82 @@ namespace ProjektHurtownia
                     MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
+        }     
+
+        public static void EditType(string previousType, string newType)
+        {
+            string query = $"UPDATE product_type SET product_type=@NewType WHERE product_type=@PreviuosType";
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                try
+                {
+                    connection.Execute(query, new
+                    {
+                        NewType = newType,
+                        PreviuosType = previousType
+                    });
+                }
+                catch (Exception ex)
+                {
+                    if (ex is SqlException)
+                        MessageBox.Show("Podany typ istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        public static bool IsTypeUsed(string type)
+        {
+            string query = $"SELECT COUNT(*) FROM product p INNER JOIN product_type pt ON p.type_id=pt.type_id WHERE pt.product_type=@Type";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Type", type);
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader rd = command.ExecuteReader();
+                    if (rd.HasRows)
+                    {
+                        rd.Read();
+                        if (rd.GetInt32(0) > 0)
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return true;
+            }
+        }
+        public static void DeleteType(string type)
+        {
+            if (!IsTypeUsed(type))
+            {
+                string query = $"DELETE FROM product_type WHERE product_type=@Type";
+
+                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                {
+                    try
+                    {
+                        connection.Execute(query, new { Type= type });
+                        MessageBox.Show("Pomyślnie usunięto typ.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            else
+                MessageBox.Show("Usunięcie niemożliwe. Typ jest wykorzystany w istniejącym produkcie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         public static void AddNewDiscipline(string discipline)
@@ -166,6 +404,7 @@ namespace ProjektHurtownia
                 try
                 {
                     connection.Execute(query, new { Discipline = discipline });
+                    MessageBox.Show("Pomyślnie dodano dyscyplinę do bazy.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
@@ -177,9 +416,9 @@ namespace ProjektHurtownia
             }
         }
 
-        public static void AddNewOrder(Order order)
+        public static void EditDiscipline(string previousDiscipline, string newDiscipline)
         {
-            string query = $"INSERT INTO [order] (product_id,user_id,count,order_date,guarantee_end,total_cost) VALUES (@ProductId,@UserId,@Count,@OrderDate,@GuaranteeEnd,@Cost)";
+            string query = $"UPDATE product_discipline SET discipline_kind=@NewDiscipline WHERE discipline_kind=@PreviousDiscipline";
 
             using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -187,12 +426,86 @@ namespace ProjektHurtownia
                 {
                     connection.Execute(query, new
                     {
-                        ProductId = order.IdProduct,
-                        UserId = order.IdUser,
-                        Count = order.Count,
-                        OrderDate = order.OrderDate,
-                        GuaranteeEnd = order.GuaranteeEnd,
-                        Cost = order.TotalCost             
+                        NewDiscipline = newDiscipline,
+                        PreviousDiscipline = previousDiscipline
+                    });
+                }
+                catch (Exception ex)
+                {
+                    if (ex is SqlException)
+                        MessageBox.Show("Podana dyscyplina istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        public static bool IsDisciplineUsed(string discipline)
+        {
+            string query = $"SELECT COUNT(*) FROM product p INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id WHERE pd.discipline_kind=@Discipline";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Discipline", discipline);
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader rd = command.ExecuteReader();
+                    if (rd.HasRows)
+                    {
+                        rd.Read();
+                        if (rd.GetInt32(0) > 0)
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return true;
+            }
+        }
+        public static void DeleteDiscipline(string discipline)
+        {
+            if (!IsDisciplineUsed(discipline))
+            {
+                string query = $"DELETE FROM product_discipline WHERE discipline_kind=@Discipline";
+
+                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                {
+                    try
+                    {
+                        connection.Execute(query, new { Discipline = discipline });
+                        MessageBox.Show("Pomyślnie usunięto dyscyplinę.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+            else
+                MessageBox.Show("Usunięcie niemożliwe. Dostawca jest wykorzystany w istniejącym produkcie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+        
+        public static void AddNewOrder(Order order)
+        {
+            string query = $"INSERT INTO [order] (order_id,order_position_id, user_id, order_date) VALUES (@OrderId, @OrderPositionId, @UserId, @OrderDate)";
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                try
+                {
+                    connection.Execute(query, new
+                    {
+                        OrderId = order.IdOrder,
+                        OrderPositionId = order.IdOrderPosition,
+                        UserId = idUser,
+                        OrderDate = order.OrderDate
                     });
                 }
                 catch (Exception ex)
@@ -202,6 +515,28 @@ namespace ProjektHurtownia
             }
         }
 
+        public static void AddNewOrderPosition(OrderPosition orderPosition)
+        {
+            string query = $"INSERT INTO order_position (total_cost,count,guarantee_end,product_id) VALUES (@Cost,@Count,@Guarantee,@ProductId)";
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                try
+                {
+                    connection.Execute(query, new
+                    {
+                        Cost = orderPosition.TotalCost,
+                        Count = orderPosition.Count,
+                        Guarantee = orderPosition.GuaranteeEnd,
+                        ProductId = orderPosition.IdProduct
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
         public static void UpdateProductCount(int productId, int newUnitQuantity)
         {
             string query = $"UPDATE product SET unit_quantity=@NewUnitQuantity WHERE product_id=@ProductId";
@@ -428,36 +763,6 @@ namespace ProjektHurtownia
             }
         }
 
-        public static List<Product> SearchNotAvailableProducts()
-        {
-            List<Product> list = new List<Product>();
-            string query = $"SELECT product_id, product_name, type_id, discipline_id, unit_price,provider_id FROM product WHERE unit_quantity=0";
-
-            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
-            {
-                SqlCommand command = new SqlCommand(query, connection);
-                try
-                {
-                    connection.Open();
-                    using (var rd = command.ExecuteReader())
-                    {
-                        foreach (DbDataRecord product in rd)
-                        {
-                            Product p = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
-                                0, Double.Parse(product[4].ToString()), Int32.Parse(product[5].ToString()));
-                            list.Add(p);
-                        }
-                        return list;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-                return null;
-            }
-        }
-
         public static List<string> GetAllTypes()
         {
             string query = $"SELECT product_type FROM product_type";
@@ -545,17 +850,19 @@ namespace ProjektHurtownia
             }
         }
 
-        private static string PrepareQuery(string query, List<string> list)
+        private static string PrepareQuery(List<string> list, string tableName)
         {
+            string table = tableName;
+            string query = "";
+
             if (list.Count > 0)
             {
+                query += "(";
                 foreach (var item in list)
-                    query += "'" + item + "' OR ";
+                    query += tableName + " LIKE '" + item + "' OR ";
                 query = query.Remove(query.Length - 3, 3);
                 query += ')';
             }
-            else
-                query = "";
 
             return query;
         }
@@ -565,14 +872,11 @@ namespace ProjektHurtownia
             var list = new List<Product>();
             
             string basicQuery = $"SELECT product_id,product_name,p.type_id,p.discipline_id,unit_quantity,unit_price,p.provider_id FROM product p INNER JOIN provider pr ON " +
-                $"p.provider_id=pr.provider_id INNER JOIN product_type pt ON p.type_id=pt.type_id INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id WHERE (unit_quantity>0) AND ";
+                $"p.provider_id=pr.provider_id INNER JOIN product_type pt ON p.type_id=pt.type_id INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id WHERE ";
 
-            string typeQuery = $"(pt.product_type LIKE ";
-            typeQuery = PrepareQuery(typeQuery, selectedTypes);
-            string disciplineQuery = $"(pd.discipline_kind LIKE ";
-            disciplineQuery = PrepareQuery(disciplineQuery, selectedDisciplines);
-            string providerQuery = $"(pr.provider_name LIKE ";
-            providerQuery = PrepareQuery(providerQuery, selectedProviders);
+            string typeQuery = PrepareQuery(selectedTypes, "pt.product_type");
+            string disciplineQuery = PrepareQuery(selectedDisciplines, "pd.discipline_kind");
+            string providerQuery = PrepareQuery(selectedProviders, "pr.provider_name");
 
             if (typeQuery != "")
                 basicQuery += typeQuery;
@@ -624,7 +928,7 @@ namespace ProjektHurtownia
 
             string basicQuery = $"SELECT product_id,product_name,p.type_id,p.discipline_id,unit_quantity,unit_price,p.provider_id FROM product p INNER JOIN provider pr ON " +
                 $"p.provider_id=pr.provider_id INNER JOIN product_type pt ON p.type_id=pt.type_id INNER JOIN product_discipline pd ON p.discipline_id=pd.discipline_id" +
-                $" WHERE (unit_quantity>0) AND (LOWER(product_name) LIKE LOWER(@ProductName))";
+                $" WHERE (LOWER(product_name) LIKE LOWER(@ProductName))";
          
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -695,15 +999,15 @@ namespace ProjektHurtownia
             }
         }
 
-        public static List<Order> GetUserOrders() // zwraca zamówienia danego użytkownika
+        public static List<Order> GetUserOrder() // zwraca zamówienia danego użytkownika
         {
             List<Order> list = new List<Order>();
-            string query = $"SELECT order_id,product_id,count,order_date,guarantee_end,total_cost FROM [order] WHERE user_id=@UserId";
+            string query = $"SELECT order_id,order_position_id,order_date FROM [order] WHERE user_id=@UserId";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@UserId", DateBase.idUser);
+                command.Parameters.AddWithValue("@UserId", idUser);
                 try
                 {
                     connection.Open();
@@ -711,8 +1015,7 @@ namespace ProjektHurtownia
                     {
                         foreach (DbDataRecord order in rd)
                         {
-                            Order o = new Order(Int32.Parse(order[0].ToString()), Int32.Parse(order[1].ToString()), DateBase.idUser, Int32.Parse(order[2].ToString()),
-                               DateTime.Parse(order[3].ToString()), DateTime.Parse(order[4].ToString()), Double.Parse(order[5].ToString()));
+                            Order o = new Order(Int32.Parse(order[0].ToString()), Int32.Parse(order[1].ToString()), idUser, DateTime.Parse(order[2].ToString()));
                             list.Add(o);
                         }
                         return list;
@@ -726,14 +1029,44 @@ namespace ProjektHurtownia
             }
         }
 
-        private static bool IsReturnPossible(int orderId) // wyświetla odpowiednie wartości w kolumnie datagridview w zależności od tego co zwraca funkcja
+        public static OrderPosition GetOrderPosition(int orderPositionId)
         {
-            string query = $"SELECT guarantee_end FROM [order] WHERE order_id=@OrderId";
+            string query = $"SELECT total_cost,count,guarantee_end,product_id FROM order_position WHERE order_position_id=@OrderPositionId";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@OrderId", orderId);
+                command.Parameters.AddWithValue("@OrderPositionId", orderPositionId);
+                OrderPosition position = null;
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader order = command.ExecuteReader();
+                    if (order.HasRows)
+                    {
+                        order.Read();
+                        position = new OrderPosition(orderPositionId, Double.Parse(order[0].ToString()), Int32.Parse(order[1].ToString()),
+                            Int32.Parse(order[3].ToString()), DateTime.Parse(order[2].ToString()));
+                    }
+                    else
+                        MessageBox.Show("Nie istnieje pozycja zamówienia o takim id");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return position;
+            }
+        }
+        private static bool IsReturnPossible(int orderPositionId) // wyświetla odpowiednie wartości w kolumnie datagridview w zależności od tego co zwraca funkcja
+        {
+            string query = $"SELECT guarantee_end FROM order_position WHERE order_position_id=@OrderPositionId";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@OrderPositionId", orderPositionId);
                 try
                 {
                     connection.Open();
@@ -753,8 +1086,6 @@ namespace ProjektHurtownia
                         else
                             return false; // minął czas zwrotu
                     }
-                    else
-                        MessageBox.Show("Niepoprawne dane");
                 }
                 catch (Exception ex)
                 {
@@ -764,17 +1095,17 @@ namespace ProjektHurtownia
             }
         }
 
-        public static void CancelOrder(int orderId, int productId, int newUnitQuantity)
+        public static void CancelOrder(int orderPositionId, int productId, int newUnitQuantity)
         {
-            if (IsReturnPossible(orderId))
+            if (IsReturnPossible(orderPositionId))
             {
-                string query = $"DELETE FROM [order] WHERE order_id=@OrderId";
+                string query = $"DELETE FROM order_position WHERE order_position_id=@OrderPositionId";
 
                 using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
                 {
                     try
                     {
-                        connection.Execute(query, new { OrderId = orderId });
+                        connection.Execute(query, new { OrderPositionId = orderPositionId });
                         UpdateProductCount(productId, newUnitQuantity);
                         MessageBox.Show("Pomyślnie dokonano zwrotu.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
@@ -787,6 +1118,47 @@ namespace ProjektHurtownia
             else
                 MessageBox.Show("Zwrot niemożliwy, gdyż upłynął termin.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
-        
+
+        public static int MaxCurrentOrderId()
+        {
+            string query = "SELECT COALESCE(MAX(order_id),-1) FROM [order]";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+
+                try
+                {
+                    connection.Open();
+                    return (int)command.ExecuteScalar(); // return max order id
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            return -1;
+        }
+
+        public static int MaxCurrentOrderPositionId()
+        {
+            string query = "SELECT COALESCE(MAX(order_position_id),-1) FROM order_position";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+
+                try
+                {
+                    connection.Open();
+                    return (int)command.ExecuteScalar(); // return max order id
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            return -1;
+        }
     }
 }

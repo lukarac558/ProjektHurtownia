@@ -40,8 +40,9 @@
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.button2 = new System.Windows.Forms.Button();
+            this.orderASCButton = new System.Windows.Forms.Button();
+            this.orderDESCButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -58,10 +59,10 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(864, 125);
+            this.button1.Location = new System.Drawing.Point(850, 68);
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(105, 41);
+            this.button1.Size = new System.Drawing.Size(139, 50);
             this.button1.TabIndex = 1;
             this.button1.Text = "Filtruj";
             this.button1.UseVisualStyleBackColor = true;
@@ -140,13 +141,15 @@
             131072});
             this.numericUpDown1.Location = new System.Drawing.Point(715, 85);
             this.numericUpDown1.Maximum = new decimal(new int[] {
-            99999999,
+            99999998,
             0,
             0,
             131072});
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(90, 20);
             this.numericUpDown1.TabIndex = 11;
+            this.numericUpDown1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.numericUpDown1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.numericUpDown1_KeyPress);
             // 
             // numericUpDown2
             // 
@@ -158,10 +161,10 @@
             131072});
             this.numericUpDown2.Location = new System.Drawing.Point(715, 146);
             this.numericUpDown2.Maximum = new decimal(new int[] {
-            1000000,
+            99999999,
             0,
             0,
-            0});
+            131072});
             this.numericUpDown2.Minimum = new decimal(new int[] {
             1,
             0,
@@ -170,29 +173,22 @@
             this.numericUpDown2.Name = "numericUpDown2";
             this.numericUpDown2.Size = new System.Drawing.Size(90, 20);
             this.numericUpDown2.TabIndex = 12;
+            this.numericUpDown2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.numericUpDown2.Value = new decimal(new int[] {
             1000,
             0,
             0,
             0});
+            this.numericUpDown2.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.numericUpDown2_KeyPress);
             // 
             // dataGridView1
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(241, 284);
+            this.dataGridView1.Location = new System.Drawing.Point(175, 257);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(625, 291);
+            this.dataGridView1.Size = new System.Drawing.Size(801, 291);
             this.dataGridView1.TabIndex = 13;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(864, 84);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(105, 21);
-            this.comboBox1.TabIndex = 14;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // button2
             // 
@@ -204,13 +200,38 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // orderASCButton
+            // 
+            this.orderASCButton.Location = new System.Drawing.Point(850, 136);
+            this.orderASCButton.Margin = new System.Windows.Forms.Padding(2);
+            this.orderASCButton.Name = "orderASCButton";
+            this.orderASCButton.Size = new System.Drawing.Size(59, 36);
+            this.orderASCButton.TabIndex = 29;
+            this.orderASCButton.Text = "Sortuj rosnąco";
+            this.orderASCButton.UseVisualStyleBackColor = true;
+            this.orderASCButton.Visible = false;
+            this.orderASCButton.Click += new System.EventHandler(this.orderASCButton_Click);
+            // 
+            // orderDESCButton
+            // 
+            this.orderDESCButton.Location = new System.Drawing.Point(929, 136);
+            this.orderDESCButton.Margin = new System.Windows.Forms.Padding(2);
+            this.orderDESCButton.Name = "orderDESCButton";
+            this.orderDESCButton.Size = new System.Drawing.Size(60, 36);
+            this.orderDESCButton.TabIndex = 30;
+            this.orderDESCButton.Text = "Sortuj malejąco";
+            this.orderDESCButton.UseVisualStyleBackColor = true;
+            this.orderDESCButton.Visible = false;
+            this.orderDESCButton.Click += new System.EventHandler(this.orderDESCButton_Click);
+            // 
             // Filtering
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1136, 825);
+            this.Controls.Add(this.orderDESCButton);
+            this.Controls.Add(this.orderASCButton);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.numericUpDown2);
             this.Controls.Add(this.numericUpDown1);
@@ -249,7 +270,8 @@
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.NumericUpDown numericUpDown2;
         private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button orderASCButton;
+        private System.Windows.Forms.Button orderDESCButton;
     }
 }

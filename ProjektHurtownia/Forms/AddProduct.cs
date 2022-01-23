@@ -13,23 +13,60 @@ namespace ProjektHurtownia.Forms
 {
     public partial class AddProduct : Form
     {
+        int productId;
+        int typeId;
+        int disciplineId;
+        int providerId;
+        List<Product> productsList = new List<Product>();
         public AddProduct()
         {
             InitializeComponent();
+            ((TextBox)countUpDown.Controls[1]).MaxLength = 5;
+            ((TextBox)priceUpDown.Controls[1]).MaxLength = 9;
             var typeList = DateBase.GetAllTypes();
             foreach (var type in typeList)
                 typeComboBox.Items.Add(type);
+            if (typeList.Count > 0)
+                typeComboBox.Text = typeList[0];
+
             var disciplineList = DateBase.GetAllDisciplines();
             foreach (var discipline in disciplineList)
                 disciplineComboBox.Items.Add(discipline);
+            if (disciplineList.Count > 0)
+                disciplineComboBox.Text = disciplineList[0];
+
             var providerList = DateBase.GetAllProviders();
             foreach (var provider in providerList)
                 providerComboBox.Items.Add(provider);
+            if (providerList.Count > 0)
+                providerComboBox.Text = providerList[0];
+
+            productsList = DateBase.FilterByProductName("");
+            productsDataGridView.DataSource = productsList.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
+
+            productsDataGridView.Columns["Identyfikator"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            productsDataGridView.Columns["Ilość"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            productsDataGridView.Columns["Cena"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            productsDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            DataGridViewButtonColumn editProductButton = new DataGridViewButtonColumn();
+            editProductButton.Name = "Edytuj produkt";
+            editProductButton.Text = "Edytuj";
+            editProductButton.UseColumnTextForButtonValue = true;
+            int columnIndex = 4;
+            productsDataGridView.Columns.Insert(columnIndex, editProductButton);
+
+            DataGridViewButtonColumn deleteProductButton = new DataGridViewButtonColumn();
+            deleteProductButton.Name = "Usuń produkt";
+            deleteProductButton.Text = "Usuń";
+            deleteProductButton.UseColumnTextForButtonValue = true;
+            columnIndex = 5;
+            productsDataGridView.Columns.Insert(columnIndex, deleteProductButton);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ -]{3,50}$");
+            Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9_ -]{3,50}$");
 
             string error = "";
 
@@ -40,19 +77,27 @@ namespace ProjektHurtownia.Forms
                 MessageBox.Show(error, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
-                int typeId, disciplineId, providerId;
                 typeId = DateBase.GetTypeId(typeComboBox.Text);
                 disciplineId = DateBase.GetDisciplineId(disciplineComboBox.Text);
                 providerId = DateBase.GetProviderId(providerComboBox.Text);
 
-                DateBase.AddNewProduct(new Product(0, productNameTextBox.Text, typeId, disciplineId, Convert.ToInt32(countUpDown.Value), Convert.ToDouble(priceUpDown.Value), providerId));
+                if (button1.Text == "Dodaj nowy produkt")
+                {                
+                    DateBase.AddNewProduct(new Product(0, productNameTextBox.Text, typeId, disciplineId, Convert.ToInt32(countUpDown.Value), Convert.ToDouble(priceUpDown.Value), providerId));
+                }
+                else if (button1.Text == "Edytuj wybrany produkt")
+                {
+                    DateBase.EditProduct(new Product(productId, productNameTextBox.Text, typeId, disciplineId, Convert.ToInt32(countUpDown.Value), Convert.ToDouble(priceUpDown.Value), providerId));
+                    MessageBox.Show("Edytowano produkt w bazie.");
+                    button1.Text = "Dodaj nowy produkt";
+                    productNameTextBox.Text = "";
+                    countUpDown.Value = 1;
+                    priceUpDown.Value = (decimal)0.01;
+                }
 
-                MessageBox.Show("Poprawnie dodano produkt do bazy. Nastąpi powrót do panelu wyboru.");
-
-                SelectionPanel welcome = new SelectionPanel();
-                Hide();
-                welcome.ShowDialog();
-                Close();
+                productsList.Clear();
+                productsList = DateBase.FilterByProductName("");
+                productsDataGridView.DataSource = productsList.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
             }
         }
 
@@ -64,19 +109,39 @@ namespace ProjektHurtownia.Forms
             Close();
         }
 
-        private void checkTypesButton_Click(object sender, EventArgs e)
+        private void productsDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.ColumnIndex == productsDataGridView.Columns["Edytuj produkt"].Index && e.RowIndex >= 0)
+            {
+                button1.Text = "Edytuj wybrany produkt";
+                DataGridViewRow row = productsDataGridView.Rows[e.RowIndex];
+                productId = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
+                Product product = DateBase.GetProduct(productId);
+                productNameTextBox.Text = product.ProductName;
+                typeComboBox.Text = DateBase.GetTypeById(product.TypeId);
+                disciplineComboBox.Text = DateBase.GetDisciplineById(product.DisciplineId);
+                countUpDown.Value = product.UnitQuantity;
+                priceUpDown.Value = (decimal)product.UnitPrice;
+                providerComboBox.Text = DateBase.GetProviderById(product.ProviderId).ProviderName;
+            }
+            else if(e.ColumnIndex == productsDataGridView.Columns["Usuń produkt"].Index && e.RowIndex >= 0)
+            {
+                DataGridViewRow row = productsDataGridView.Rows[e.RowIndex];
+                productId = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
+                DateBase.DeleteProduct(productId);
 
+                productsList.Clear();
+                productsList = DateBase.FilterByProductName("");
+                productsDataGridView.DataSource = productsList.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
+            }
         }
 
-        private void checkDisciplineButton_Click(object sender, EventArgs e)
+        private void countUpDown_KeyPress(object sender, KeyPressEventArgs e)
         {
-
-        }
-
-        private void checkProviderButton_Click(object sender, EventArgs e)
-        {
-
+            if (e.KeyChar < 48 || e.KeyChar > 57)
+            {
+                e.Handled = true;
+            }
         }
     }
 }

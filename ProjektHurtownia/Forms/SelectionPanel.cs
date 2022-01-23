@@ -24,7 +24,8 @@ namespace ProjektHurtownia.Forms
             {
                 filteringButton.Visible = false;
                 searchByNameButton.Visible = false;
-                previewOrdersButton.Visible = false;               
+                previewOrdersButton.Visible = false;
+                cartButton.Visible = false;
             }
         }
 
@@ -67,7 +68,15 @@ namespace ProjektHurtownia.Forms
             Close();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void cartButton_Click(object sender, EventArgs e)
+        {
+            CartPanel cart = new CartPanel();
+            Hide();
+            cart.ShowDialog();
+            Close();
+        }
+
+        private void logoutButton_Click(object sender, EventArgs e)
         {
             DateBase.LogOut();
             StartPage start = new StartPage();

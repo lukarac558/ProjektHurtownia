@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\OrderPosition.cs" />
     <Compile Include="Classes\Provider.cs" />
     <Compile Include="Classes\Sha1.cs" />
     <Compile Include="Database\DateBase.cs" />
@@ -82,6 +83,12 @@
     </Compile>
     <Compile Include="Forms\AddTDP.Designer.cs">
       <DependentUpon>AddTDP.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CartPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CartPanel.Designer.cs">
+      <DependentUpon>CartPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\CurrentOrders.cs">
       <SubType>Form</SubType>
@@ -142,6 +149,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\AddTDP.resx">
       <DependentUpon>AddTDP.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CartPanel.resx">
+      <DependentUpon>CartPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\CurrentOrders.resx">
       <DependentUpon>CurrentOrders.cs</DependentUpon>

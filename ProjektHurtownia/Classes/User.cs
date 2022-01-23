@@ -11,6 +11,7 @@ namespace ProjektHurtownia
         int idUser;
         string login;
         string password;
+        string email;
         string permission;
         string name;
         string surname;
@@ -19,17 +20,18 @@ namespace ProjektHurtownia
         string residenceNumber;
         string postcode;
 
-        public User(string login, string password, string name, string surname, string city, string street, string residenceNumber, string postcode)
+        public User(string login, string password, string name, string surname, string city, string street, string residenceNumber, string postcode, string email)
         {
-            this.Login = login;
-            this.Password = password;
-            this.Permission = "Customer";
-            this.Name = name;
-            this.Surname = surname;
-            this.City = city;
-            this.Street = street;
-            this.ResidenceNumber = residenceNumber;
-            this.Postcode = postcode;
+            Login = login;
+            Password = password;
+            Permission = "Customer";
+            Name = name;
+            Surname = surname;
+            City = city;
+            Street = street;
+            ResidenceNumber = residenceNumber;
+            Postcode = postcode;
+            Email = email;
         }
 
         public int IdUser { get => idUser; set => idUser = value; }
@@ -42,5 +44,6 @@ namespace ProjektHurtownia
         public string Street { get => street; set => street = value; }
         public string ResidenceNumber { get => residenceNumber; set => residenceNumber = value; }
         public string Postcode { get => postcode; set => postcode = value; }
+        public string Email { get => email; set => email = value; }
     }
 }

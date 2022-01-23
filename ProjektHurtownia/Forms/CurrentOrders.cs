@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjektHurtownia.Classes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,19 +17,32 @@ namespace ProjektHurtownia.Forms
 
         private void AddToDataGridView()
         {
-            currentOrders = DateBase.GetUserOrders();
+            currentOrders = DateBase.GetUserOrder();
             dataGridView1.Rows.Clear();
+
             foreach (var order in currentOrders)
             {
-                Product p = DateBase.GetProduct(order.IdProduct);
-                dataGridView1.Rows.Add(order.IdOrder, p.ProductName, DateBase.GetProviderById(p.ProviderId).ProviderName, order.TotalCost + " zł", order.Count, order.OrderDate, order.GuaranteeEnd, "Anuluj");
+                OrderPosition orderPosition = DateBase.GetOrderPosition(order.IdOrderPosition);
+                Product p = DateBase.GetProduct(orderPosition.IdProduct);
+                dataGridView1.Rows.Add(order.IdOrder, order.IdOrderPosition, p.ProductName, DateBase.GetProviderById(p.ProviderId).ProviderName, orderPosition.TotalCost + " zł", orderPosition.Count, order.OrderDate, orderPosition.GuaranteeEnd, "Anuluj");
             }
+            ChangeColumnsAlignment();
+        }
+
+        private void ChangeColumnsAlignment()
+        {
+            dataGridView1.Columns["Identyfikator"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["Pozycja"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["Cena"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["Ilosc"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
         public CurrentOrders() // dodać opcję zwrotu zawówionych produktów(jeśli nie minął termin zwrotu)
         {
             InitializeComponent();
             dataGridView1.Columns.Add("Identyfikator", "Identyfikator zamówienia");
+            dataGridView1.Columns.Add("Pozycja", "Pozycja zamówienia");
             dataGridView1.Columns.Add("Nazwa", "Nazwa produktu");
             dataGridView1.Columns.Add("Marka", "Marka");
             dataGridView1.Columns.Add("Cena", "Cena całkowita");
@@ -38,14 +52,9 @@ namespace ProjektHurtownia.Forms
             DataGridViewButtonColumn cancelOrderButton = new DataGridViewButtonColumn();
             cancelOrderButton.Name = "Zwróć zamówienie";
             cancelOrderButton.Text = "Zwróć";
-            int columnIndex = 7;
+            int columnIndex = 8;
             cancelOrderButton.UseColumnTextForButtonValue = true;
-            dataGridView1.Columns.Insert(columnIndex, cancelOrderButton);
-
-            dataGridView1.Columns["Identyfikator"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridView1.Columns["Cena"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridView1.Columns["Ilosc"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView1.Columns.Insert(columnIndex, cancelOrderButton);         
 
             AddToDataGridView();
         }
@@ -55,11 +64,11 @@ namespace ProjektHurtownia.Forms
             if ( e.ColumnIndex == dataGridView1.Columns["Zwróć zamówienie"].Index && e.RowIndex >= 0)
             {
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-                int orderId = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());             
-                Order order = currentOrders.Find(x => x.IdOrder == orderId);                    
-                int newCount = DateBase.GetProduct(order.IdProduct).UnitQuantity + order.Count;
-
-                DateBase.CancelOrder(orderId, order.IdProduct, newCount);
+                int orderPositionId = Int32.Parse(row.Cells["Pozycja"].Value.ToString());
+                OrderPosition orderPosition = DateBase.GetOrderPosition(orderPositionId);
+                
+                int newCount = DateBase.GetProduct(orderPosition.IdProduct).UnitQuantity + orderPosition.Count;
+                DateBase.CancelOrder(orderPositionId, orderPosition.IdProduct, newCount);
                 
                 AddToDataGridView();
             }

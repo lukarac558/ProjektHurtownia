@@ -12,106 +12,93 @@ namespace ProjektHurtownia.Forms
 {
     public partial class SearchByName : Form
     {
-        private List<Product> actualSearched= new List<Product>();
-        private bool ifInsertSearch = false;
-        private bool ifInsertNotAvailable = false;
-        private int index = 4;
+        private List<Product> actualSearched = new List<Product>();
 
-        private void AddOrderButton(string name, string text, int index)
+        void AddProviderColumn()
+        {
+            DataGridViewColumn provider = new DataGridViewColumn();
+            DataGridViewCell cell = new DataGridViewTextBoxCell();
+            provider.CellTemplate = cell;
+            provider.Name = "Marka";
+            int columnIndex = 4;
+            dataGridView1.Columns.Insert(columnIndex, provider);
+            DataGridViewRow row;
+
+            for (int i = 0; i < actualSearched.Count; i++)
+            {
+                row = dataGridView1.Rows[i];
+                int productId = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
+                Product product = DateBase.GetProduct(productId);
+                dataGridView1.Rows[i].Cells[4].Value = DateBase.GetProviderById(product.ProviderId).ProviderName;
+            }
+        }
+
+        private void AddOrderButtonColumn()
         {
             DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn();
-            makeOrderButton.Name = name;
-            makeOrderButton.Text = text;
-            int columnIndex = index;
+            makeOrderButton.Name = "Dodaj do koszyka";
+            makeOrderButton.Text = "Wybierz";
+            int columnIndex = 5;
             makeOrderButton.UseColumnTextForButtonValue = true;
             dataGridView1.Columns.Insert(columnIndex, makeOrderButton);
+        }
+
+        private void ChangeColumnsAlignment()
+        {
             dataGridView1.Columns["Identyfikator"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridView1.Columns["IlośćJednostkowa"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridView1.Columns["CenaJednostkowa"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["Ilość"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridView1.Columns["Cena"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
         public SearchByName()
         {
-            InitializeComponent();
-            string[] sortOptions = { "Sortuj rosnąco", "Sortuj malejąco" };
-            comboBox1.Items.AddRange(sortOptions);                  
+            InitializeComponent();             
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            dataGridView1.Columns.Clear();
+            actualSearched.Clear();
             string name = productNameTextBox.Text;
-            actualSearched.Clear();
             actualSearched = DateBase.FilterByProductName(name);
-            dataGridView1.DataSource = actualSearched.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
+            dataGridView1.DataSource = actualSearched.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
 
-            if (!ifInsertSearch)
-            {
-                AddOrderButton("Zamów teraz", "Złóż zamówienie", index);
-                index++;
-                ifInsertSearch = true;
-            }
+            AddProviderColumn();
+            AddOrderButtonColumn();
+            ChangeColumnsAlignment();
 
-            if (ifInsertNotAvailable)
-            {
-                dataGridView1.Columns["Czy uzupełnić?"].Visible = false;
-                dataGridView1.Columns["Zamów teraz"].Visible = true;
-            }
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            actualSearched.Clear();
-            actualSearched = DateBase.SearchNotAvailableProducts();
-            dataGridView1.DataSource = actualSearched.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
-            if (!ifInsertNotAvailable)
-            {
-                AddOrderButton("Czy uzupełnić?", "Zapytaj o produkt", index);
-                index++;
-                ifInsertNotAvailable = true;
-            }
-          
-            if(ifInsertSearch)
-            {
-                dataGridView1.Columns["Czy uzupełnić?"].Visible = true;
-                dataGridView1.Columns["Zamów teraz"].Visible = false;
-            }                        
-        }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
             if (actualSearched.Count == 0)
-                MessageBox.Show("Brak produktów do sortowania", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            {
+                orderASCButton.Visible = false;
+                orderDESCButton.Visible = false;
+                MessageBox.Show("Nie zwrócono żadnych wyników. Zmień filtry.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
             else
             {
-                if (comboBox1.SelectedItem.Equals("Sortuj rosnąco"))
-                {
-                    var list = DateBase.OrderProductsByPrice(actualSearched, "ASC");
-                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
-                }
-                else if (comboBox1.SelectedItem.Equals("Sortuj malejąco"))
-                {
-                    var list = DateBase.OrderProductsByPrice(actualSearched, "DESC");
-                    dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, IlośćJednostkowa = o.UnitQuantity, CenaJednostkowa = o.UnitPrice + " zł" }).ToList();
-                }
+                orderASCButton.Visible = true;
+                orderDESCButton.Visible = true;
             }
         }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e){ }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (ifInsertSearch && e.ColumnIndex == dataGridView1.Columns["Zamów teraz"].Index && e.RowIndex >= 0)
+            if (e.ColumnIndex == dataGridView1.Columns["Dodaj do koszyka"].Index && e.RowIndex >= 0)
             {
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
-                int id = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
-                OrderDetails order = new OrderDetails(id);
-                Hide();
-                order.ShowDialog();
-                Close();
-                // przenosi do nowego formularza, gdzie użytkownik wybiera ilość i składa zamówienie
-            }
-            else if (ifInsertNotAvailable && e.ColumnIndex == dataGridView1.Columns["Czy uzupełnić?"].Index && e.RowIndex >= 0)
-            {
-                MessageBox.Show("Dziękujemy za przekazanie informacji. Wkrótce postaramy się uzupełnić zapasy.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                int count = Int32.Parse(row.Cells["Ilość"].Value.ToString());
+                if (count > 0)
+                {
+                    int id = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
+                    OrderDetails order = new OrderDetails(id);
+                    Hide();
+                    order.ShowDialog();
+                    Close();
+                }
+                else
+                    MessageBox.Show("Brak dostępnych egzemplarzy. Niemożliwe dodanie do koszyka.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -121,6 +108,26 @@ namespace ProjektHurtownia.Forms
             Hide();
             welcome.ShowDialog();
             Close();
+        }
+
+        private void orderASCButton_Click(object sender, EventArgs e)
+        {
+            dataGridView1.Columns.Clear();
+            var list = DateBase.OrderProductsByPrice(actualSearched, "ASC");
+            dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
+            AddProviderColumn();
+            AddOrderButtonColumn();
+            ChangeColumnsAlignment();
+        }
+
+        private void orderDESCButton_Click(object sender, EventArgs e)
+        {
+            dataGridView1.Columns.Clear();
+            var list = DateBase.OrderProductsByPrice(actualSearched, "DESC");
+            dataGridView1.DataSource = list.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
+            AddProviderColumn();
+            AddOrderButtonColumn();
+            ChangeColumnsAlignment();
         }
     }
 }

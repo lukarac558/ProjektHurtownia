@@ -148,6 +148,7 @@ namespace ProjektHurtownia.Forms
             // passwordTextBox
             // 
             this.passwordTextBox.Location = new System.Drawing.Point(420, 155);
+            this.passwordTextBox.MaxLength = 20;
             this.passwordTextBox.Name = "passwordTextBox";
             this.passwordTextBox.PasswordChar = '*';
             this.passwordTextBox.Size = new System.Drawing.Size(100, 20);
@@ -156,6 +157,7 @@ namespace ProjektHurtownia.Forms
             // password2TextBox
             // 
             this.password2TextBox.Location = new System.Drawing.Point(420, 203);
+            this.password2TextBox.MaxLength = 20;
             this.password2TextBox.Name = "password2TextBox";
             this.password2TextBox.PasswordChar = '*';
             this.password2TextBox.Size = new System.Drawing.Size(100, 20);
@@ -164,6 +166,7 @@ namespace ProjektHurtownia.Forms
             // emailTextBox
             // 
             this.emailTextBox.Location = new System.Drawing.Point(420, 251);
+            this.emailTextBox.MaxLength = 40;
             this.emailTextBox.Name = "emailTextBox";
             this.emailTextBox.Size = new System.Drawing.Size(100, 20);
             this.emailTextBox.TabIndex = 12;
@@ -171,6 +174,7 @@ namespace ProjektHurtownia.Forms
             // nameTextBox
             // 
             this.nameTextBox.Location = new System.Drawing.Point(420, 295);
+            this.nameTextBox.MaxLength = 20;
             this.nameTextBox.Name = "nameTextBox";
             this.nameTextBox.Size = new System.Drawing.Size(100, 20);
             this.nameTextBox.TabIndex = 13;
@@ -178,6 +182,7 @@ namespace ProjektHurtownia.Forms
             // surnameTextBox
             // 
             this.surnameTextBox.Location = new System.Drawing.Point(420, 337);
+            this.surnameTextBox.MaxLength = 30;
             this.surnameTextBox.Name = "surnameTextBox";
             this.surnameTextBox.Size = new System.Drawing.Size(100, 20);
             this.surnameTextBox.TabIndex = 14;
@@ -185,6 +190,7 @@ namespace ProjektHurtownia.Forms
             // postcodeTextBox
             // 
             this.postcodeTextBox.Location = new System.Drawing.Point(420, 375);
+            this.postcodeTextBox.MaxLength = 6;
             this.postcodeTextBox.Name = "postcodeTextBox";
             this.postcodeTextBox.Size = new System.Drawing.Size(100, 20);
             this.postcodeTextBox.TabIndex = 15;
@@ -192,6 +198,7 @@ namespace ProjektHurtownia.Forms
             // cityTextBox
             // 
             this.cityTextBox.Location = new System.Drawing.Point(420, 419);
+            this.cityTextBox.MaxLength = 30;
             this.cityTextBox.Name = "cityTextBox";
             this.cityTextBox.Size = new System.Drawing.Size(100, 20);
             this.cityTextBox.TabIndex = 16;
@@ -199,6 +206,7 @@ namespace ProjektHurtownia.Forms
             // streetTextBox
             // 
             this.streetTextBox.Location = new System.Drawing.Point(420, 458);
+            this.streetTextBox.MaxLength = 60;
             this.streetTextBox.Name = "streetTextBox";
             this.streetTextBox.Size = new System.Drawing.Size(100, 20);
             this.streetTextBox.TabIndex = 17;
@@ -206,6 +214,7 @@ namespace ProjektHurtownia.Forms
             // residenceNumberTextBox
             // 
             this.residenceNumberTextBox.Location = new System.Drawing.Point(420, 496);
+            this.residenceNumberTextBox.MaxLength = 5;
             this.residenceNumberTextBox.Name = "residenceNumberTextBox";
             this.residenceNumberTextBox.Size = new System.Drawing.Size(100, 20);
             this.residenceNumberTextBox.TabIndex = 18;
@@ -223,6 +232,7 @@ namespace ProjektHurtownia.Forms
             // loginTextBox
             // 
             this.loginTextBox.Location = new System.Drawing.Point(420, 115);
+            this.loginTextBox.MaxLength = 20;
             this.loginTextBox.Name = "loginTextBox";
             this.loginTextBox.Size = new System.Drawing.Size(100, 20);
             this.loginTextBox.TabIndex = 20;

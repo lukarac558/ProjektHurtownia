@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProjektHurtownia.Classes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -22,7 +23,7 @@ namespace ProjektHurtownia.Forms
         {
             InitializeComponent();
             this.idProduct = idProduct;
-            // public Product(int productId, string productName, int typeId, int disciplineId, int unitQuantity, double unitPrice, int providerId)
+            ((TextBox)countUpDown.Controls[1]).MaxLength = 5;
             product = DateBase.GetProduct(idProduct);
             productNameTextBox.Text = product.ProductName;
             typeTextBox.Text = DateBase.GetTypeById(product.TypeId);         
@@ -36,19 +37,21 @@ namespace ProjektHurtownia.Forms
         }
 
         private void button1_Click(object sender, EventArgs e) // złóż zamówienie
-        {
-            // public Order(int idOrder, int idProduct, int idUser, int count, DateTime orderDate, double totalCost)
-            int newCount = product.UnitQuantity - count;
-            DateTime currentTime = DateTime.Now;
-            DateTime guaranteeEnd = currentTime.AddDays(DateBase.GetProviderById(product.ProviderId).GuaranteePeriod);
-            DateBase.AddNewOrder(new Order(0, idProduct, DateBase.idUser, count, currentTime, guaranteeEnd, totalCost));
-            DateBase.UpdateProductCount(idProduct, newCount);
-            string message = "Pomyślnie złożono zamówienie. Będzie ono widoczne w liście twoich zamówień wraz z ograniczoną czasowo możliwością anulowania zamówienia.";
-            MessageBox.Show(message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        {           
+            if (DateBase.cart.ContainsKey(idProduct))
+            {
+                DateBase.cart[idProduct] = count;
+                MessageBox.Show("Produkt był już w koszyku. Nadpisano liczbę produktów.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else
+            {
+                DateBase.cart.Add(idProduct, count);
+                MessageBox.Show("Pomyślnie dodano nowy produkt do koszyka.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
 
-            SelectionPanel panel = new SelectionPanel();
+            CartPanel cart = new CartPanel();
             Hide();
-            panel.ShowDialog();
+            cart.ShowDialog();
             Close();
         }
 
@@ -65,6 +68,14 @@ namespace ProjektHurtownia.Forms
             Hide();
             panel.ShowDialog();
             Close();
+        }
+
+        private void countUpDown_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar < 48 || e.KeyChar > 57)
+            {
+                e.Handled = true;
+            }
         }
     }
 }

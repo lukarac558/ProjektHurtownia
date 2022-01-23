@@ -59,7 +59,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(83, 43);
             this.button1.TabIndex = 0;
-            this.button1.Text = "Złóż zamówienie";
+            this.button1.Text = "Dodaj do koszyka";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -170,12 +170,14 @@
             this.countUpDown.Name = "countUpDown";
             this.countUpDown.Size = new System.Drawing.Size(83, 20);
             this.countUpDown.TabIndex = 11;
+            this.countUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.countUpDown.Value = new decimal(new int[] {
             1,
             0,
             0,
             0});
             this.countUpDown.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            this.countUpDown.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.countUpDown_KeyPress);
             // 
             // label6
             // 
