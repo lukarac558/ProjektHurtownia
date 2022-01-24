@@ -86,24 +86,29 @@ namespace ProjektHurtownia.Forms
             double minimumPrice = (double)numericUpDown1.Value;
             double maximumPrice = (double)numericUpDown2.Value;
 
-            actualFiltered = DateBase.FilterProducts(selectedTypes, selectedDisciplines, selectedProviders, minimumPrice, maximumPrice);
-            dataGridView1.DataSource = actualFiltered.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
-
-            AddProviderColumn();
-            AddOrderButtonColumn();
-            ChangeColumnsAlignment();
-
-            if (actualFiltered.Count == 0)
+            if (maximumPrice > minimumPrice)
             {
-                orderASCButton.Visible = false;
-                orderDESCButton.Visible = false;
-                MessageBox.Show("Nie zwrócono żadnych wyników. Zmień filtry.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);            
+                actualFiltered = DateBase.FilterProducts(selectedTypes, selectedDisciplines, selectedProviders, minimumPrice, maximumPrice);
+                dataGridView1.DataSource = actualFiltered.Select(o => new { Identyfikator = o.ProductId, Nazwa = o.ProductName, Ilość = o.UnitQuantity, Cena = o.UnitPrice + " zł" }).ToList();
+
+                AddProviderColumn();
+                AddOrderButtonColumn();
+                ChangeColumnsAlignment();
+
+                if (actualFiltered.Count == 0)
+                {
+                    orderASCButton.Visible = false;
+                    orderDESCButton.Visible = false;
+                    MessageBox.Show("Nie zwrócono żadnych wyników. Zmień filtry.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    orderASCButton.Visible = true;
+                    orderDESCButton.Visible = true;
+                }
             }
             else
-            {
-                orderASCButton.Visible = true;
-                orderDESCButton.Visible = true;
-            }
+                MessageBox.Show("Cena maksymalna musi być większa od minimalnej.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {}

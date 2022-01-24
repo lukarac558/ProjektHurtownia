@@ -133,18 +133,12 @@
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.DecimalPlaces = 2;
-            this.numericUpDown1.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
             this.numericUpDown1.Location = new System.Drawing.Point(715, 85);
             this.numericUpDown1.Maximum = new decimal(new int[] {
-            99999998,
+            199999,
             0,
             0,
-            131072});
+            0});
             this.numericUpDown1.Name = "numericUpDown1";
             this.numericUpDown1.Size = new System.Drawing.Size(90, 20);
             this.numericUpDown1.TabIndex = 11;
@@ -153,15 +147,9 @@
             // 
             // numericUpDown2
             // 
-            this.numericUpDown2.DecimalPlaces = 2;
-            this.numericUpDown2.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
             this.numericUpDown2.Location = new System.Drawing.Point(715, 146);
             this.numericUpDown2.Maximum = new decimal(new int[] {
-            99999999,
+            20000000,
             0,
             0,
             131072});
@@ -175,7 +163,7 @@
             this.numericUpDown2.TabIndex = 12;
             this.numericUpDown2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.numericUpDown2.Value = new decimal(new int[] {
-            1000,
+            100000,
             0,
             0,
             0});

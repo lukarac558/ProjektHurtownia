@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace ProjektHurtownia.Forms
 {
@@ -26,11 +27,11 @@ namespace ProjektHurtownia.Forms
             Regex password = new Regex(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$");
             Regex email = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
             Regex residenceNumber = new Regex(@"^[0-9]{1,4}[a-zA-Z]{0,1}$");
-            Regex postcode = new Regex(@"^[0-9]{2}(?:-[0-9]{3})?$");
+            Regex postcode = new Regex(@"^[0-9]{2}-[0-9]{3}$");
             Regex name = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]{3,20}$");
-            Regex surname = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ -]{2,30}$");
-            Regex street = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ -]{3,60}$");
-            Regex city = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ -]{2,30}$");
+            Regex surname = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ ]{2,30}$");
+            Regex street = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ ]{3,60}$");
+            Regex city = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ_ ]{2,30}$");
 
             string error = "";
 
@@ -86,6 +87,46 @@ namespace ProjektHurtownia.Forms
             Hide();
             start.ShowDialog();
             Close();
+        }
+
+        private void residenceNumberTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)
+             && !char.IsDigit(e.KeyChar);
+        }
+
+        private void loginTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)
+             && !char.IsDigit(e.KeyChar);
+        }
+
+        private void streetTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)
+             && !char.IsSeparator(e.KeyChar);
+        }
+
+        private void nameTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar);
+        }
+
+        private void surnameTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)
+             && !char.IsSeparator(e.KeyChar);
+        }
+
+        private void postcodeTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar) && !e.KeyChar.Equals('-');
+        }
+
+        private void cityTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)
+            && !char.IsSeparator(e.KeyChar);
         }
     }
 }

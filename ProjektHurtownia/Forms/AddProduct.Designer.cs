@@ -121,6 +121,7 @@ namespace ProjektHurtownia.Forms
             this.productNameTextBox.ShortcutsEnabled = false;
             this.productNameTextBox.Size = new System.Drawing.Size(100, 20);
             this.productNameTextBox.TabIndex = 13;
+            this.productNameTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.productNameTextBox_KeyPress);
             // 
             // countUpDown
             // 
@@ -156,10 +157,10 @@ namespace ProjektHurtownia.Forms
             131072});
             this.priceUpDown.Location = new System.Drawing.Point(212, 261);
             this.priceUpDown.Maximum = new decimal(new int[] {
-            999999999,
+            200000,
             0,
             0,
-            131072});
+            0});
             this.priceUpDown.Minimum = new decimal(new int[] {
             1,
             0,
@@ -174,6 +175,7 @@ namespace ProjektHurtownia.Forms
             0,
             0,
             131072});
+            this.priceUpDown.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.priceUpDown_KeyPress);
             // 
             // button2
             // 

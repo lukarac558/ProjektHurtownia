@@ -52,8 +52,10 @@ namespace ProjektHurtownia
             this.textBox7.Location = new System.Drawing.Point(481, 169);
             this.textBox7.MaxLength = 20;
             this.textBox7.Name = "textBox7";
+            this.textBox7.ShortcutsEnabled = false;
             this.textBox7.Size = new System.Drawing.Size(100, 20);
             this.textBox7.TabIndex = 14;
+            this.textBox7.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox7_KeyPress);
             // 
             // textBox8
             // 
@@ -62,6 +64,7 @@ namespace ProjektHurtownia
             this.textBox8.MaxLength = 20;
             this.textBox8.Name = "textBox8";
             this.textBox8.PasswordChar = '*';
+            this.textBox8.ShortcutsEnabled = false;
             this.textBox8.Size = new System.Drawing.Size(100, 18);
             this.textBox8.TabIndex = 15;
             // 

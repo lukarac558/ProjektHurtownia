@@ -66,10 +66,20 @@ namespace ProjektHurtownia.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9_ -]{3,50}$");
-
             string error = "";
 
+            Decimal price = priceUpDown.Value;
+
+            string priceString = price.ToString();
+            int index = priceString.IndexOf(',');
+
+            int difference = priceString.Length - (index + 1);
+
+            if (difference > 2)
+            error += "Cena musi zawierać 2 cyfry po przecinku i nie być większa od 200000,00zł.";
+
+            Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9_ ]{3,50}$");
+         
             if (!productName.IsMatch(productNameTextBox.Text))
                 error = "Należy wprowadzić nazwę produktu. Minimalna liczba znaków to 3 a maksymalna 50.";
 
@@ -137,6 +147,20 @@ namespace ProjektHurtownia.Forms
         }
 
         private void countUpDown_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar < 48 || e.KeyChar > 57)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void productNameTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)
+             && !char.IsSeparator(e.KeyChar) && !char.IsDigit(e.KeyChar);
+        }
+
+        private void priceUpDown_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar < 48 || e.KeyChar > 57)
             {

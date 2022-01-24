@@ -46,6 +46,7 @@ namespace ProjektHurtownia.Forms
             }
 
             dataGridView1.DataSource = stringList.Select(x => new { Nazwa = x }).ToList();
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
         private void AddButons()
@@ -209,6 +210,12 @@ namespace ProjektHurtownia.Forms
             {
                 e.Handled = true;
             }
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)
+             && !char.IsSeparator(e.KeyChar) && !char.IsDigit(e.KeyChar);
         }
     }
 }

@@ -114,7 +114,7 @@ namespace ProjektHurtownia
                 catch (Exception ex)
                 {
                     if (ex is SqlException)
-                        MessageBox.Show("Podany nazwa produktu istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Podana nazwa produktu istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else
                     MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
@@ -515,7 +515,7 @@ namespace ProjektHurtownia
             }
         }
 
-        public static void AddNewOrderPosition(OrderPosition orderPosition)
+        public static void AddNewOrderPosition(OrderPosition orderPosition) // powinna zwracać int jeśli błąd przy wykonaniu obsłużyć w koszyku 
         {
             string query = $"INSERT INTO order_position (total_cost,count,guarantee_end,product_id) VALUES (@Cost,@Count,@Guarantee,@ProductId)";
 
@@ -895,7 +895,6 @@ namespace ProjektHurtownia
                 basicQuery += "(unit_price>" + minimumPrice + " AND unit_price<" + maximumPrice + ')';
             else
                 basicQuery += "AND (unit_price>" + minimumPrice + " AND unit_price<" + maximumPrice + ')';
-
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {

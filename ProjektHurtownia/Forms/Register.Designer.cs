@@ -151,6 +151,7 @@ namespace ProjektHurtownia.Forms
             this.passwordTextBox.MaxLength = 20;
             this.passwordTextBox.Name = "passwordTextBox";
             this.passwordTextBox.PasswordChar = '*';
+            this.passwordTextBox.ShortcutsEnabled = false;
             this.passwordTextBox.Size = new System.Drawing.Size(100, 20);
             this.passwordTextBox.TabIndex = 10;
             // 
@@ -160,6 +161,7 @@ namespace ProjektHurtownia.Forms
             this.password2TextBox.MaxLength = 20;
             this.password2TextBox.Name = "password2TextBox";
             this.password2TextBox.PasswordChar = '*';
+            this.password2TextBox.ShortcutsEnabled = false;
             this.password2TextBox.Size = new System.Drawing.Size(100, 20);
             this.password2TextBox.TabIndex = 11;
             // 
@@ -168,6 +170,7 @@ namespace ProjektHurtownia.Forms
             this.emailTextBox.Location = new System.Drawing.Point(420, 251);
             this.emailTextBox.MaxLength = 40;
             this.emailTextBox.Name = "emailTextBox";
+            this.emailTextBox.ShortcutsEnabled = false;
             this.emailTextBox.Size = new System.Drawing.Size(100, 20);
             this.emailTextBox.TabIndex = 12;
             // 
@@ -176,48 +179,60 @@ namespace ProjektHurtownia.Forms
             this.nameTextBox.Location = new System.Drawing.Point(420, 295);
             this.nameTextBox.MaxLength = 20;
             this.nameTextBox.Name = "nameTextBox";
+            this.nameTextBox.ShortcutsEnabled = false;
             this.nameTextBox.Size = new System.Drawing.Size(100, 20);
             this.nameTextBox.TabIndex = 13;
+            this.nameTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.nameTextBox_KeyPress);
             // 
             // surnameTextBox
             // 
             this.surnameTextBox.Location = new System.Drawing.Point(420, 337);
             this.surnameTextBox.MaxLength = 30;
             this.surnameTextBox.Name = "surnameTextBox";
+            this.surnameTextBox.ShortcutsEnabled = false;
             this.surnameTextBox.Size = new System.Drawing.Size(100, 20);
             this.surnameTextBox.TabIndex = 14;
+            this.surnameTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.surnameTextBox_KeyPress);
             // 
             // postcodeTextBox
             // 
             this.postcodeTextBox.Location = new System.Drawing.Point(420, 375);
             this.postcodeTextBox.MaxLength = 6;
             this.postcodeTextBox.Name = "postcodeTextBox";
+            this.postcodeTextBox.ShortcutsEnabled = false;
             this.postcodeTextBox.Size = new System.Drawing.Size(100, 20);
             this.postcodeTextBox.TabIndex = 15;
+            this.postcodeTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.postcodeTextBox_KeyPress);
             // 
             // cityTextBox
             // 
             this.cityTextBox.Location = new System.Drawing.Point(420, 419);
             this.cityTextBox.MaxLength = 30;
             this.cityTextBox.Name = "cityTextBox";
+            this.cityTextBox.ShortcutsEnabled = false;
             this.cityTextBox.Size = new System.Drawing.Size(100, 20);
             this.cityTextBox.TabIndex = 16;
+            this.cityTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.cityTextBox_KeyPress);
             // 
             // streetTextBox
             // 
             this.streetTextBox.Location = new System.Drawing.Point(420, 458);
             this.streetTextBox.MaxLength = 60;
             this.streetTextBox.Name = "streetTextBox";
+            this.streetTextBox.ShortcutsEnabled = false;
             this.streetTextBox.Size = new System.Drawing.Size(100, 20);
             this.streetTextBox.TabIndex = 17;
+            this.streetTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.streetTextBox_KeyPress);
             // 
             // residenceNumberTextBox
             // 
             this.residenceNumberTextBox.Location = new System.Drawing.Point(420, 496);
             this.residenceNumberTextBox.MaxLength = 5;
             this.residenceNumberTextBox.Name = "residenceNumberTextBox";
+            this.residenceNumberTextBox.ShortcutsEnabled = false;
             this.residenceNumberTextBox.Size = new System.Drawing.Size(100, 20);
             this.residenceNumberTextBox.TabIndex = 18;
+            this.residenceNumberTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.residenceNumberTextBox_KeyPress);
             // 
             // button1
             // 
@@ -234,8 +249,10 @@ namespace ProjektHurtownia.Forms
             this.loginTextBox.Location = new System.Drawing.Point(420, 115);
             this.loginTextBox.MaxLength = 20;
             this.loginTextBox.Name = "loginTextBox";
+            this.loginTextBox.ShortcutsEnabled = false;
             this.loginTextBox.Size = new System.Drawing.Size(100, 20);
             this.loginTextBox.TabIndex = 20;
+            this.loginTextBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.loginTextBox_KeyPress);
             // 
             // label11
             // 

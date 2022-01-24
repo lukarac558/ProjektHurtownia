@@ -100,8 +100,10 @@ namespace ProjektHurtownia.Forms
             this.textBox1.Location = new System.Drawing.Point(365, 320);
             this.textBox1.MaxLength = 50;
             this.textBox1.Name = "textBox1";
+            this.textBox1.ShortcutsEnabled = false;
             this.textBox1.Size = new System.Drawing.Size(131, 20);
             this.textBox1.TabIndex = 5;
+            this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
             // addButton
             // 
