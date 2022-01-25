@@ -68,6 +68,13 @@ namespace ProjektHurtownia.Forms
         {
             string error = "";
 
+            if (typeComboBox.Text == "")
+                error += "Najpierw należy dodać typy do bazy, by móc dodać produkt.\n";
+            if(disciplineComboBox.Text == "")
+                error += "Najpierw należy dodać dyscypliny do bazy, by móc dodać produkt.\n";
+            if(providerComboBox.Text == "")
+                error += "Najpierw należy dodać dostawców do bazy, by móc dodać produkt.\n";
+
             Decimal price = priceUpDown.Value;
 
             string priceString = price.ToString();

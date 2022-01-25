@@ -65,8 +65,8 @@ namespace ProjektHurtownia
 
         public static void Register(User user)
         {
-            string query = $"INSERT INTO [user] (login,password,permission,name,surname,city,street,residence_number,postcode)" +
-                    $" VALUES (@Login, @Password,@Permission,@Name,@Surname,@City,@Street,@ResidenceNumber,@Postcode)";
+            string query = $"INSERT INTO [user] (login,password,permission,name,surname,city,street,residence_number,postcode,email)" +
+                    $" VALUES (@Login, @Password,@Permission,@Name,@Surname,@City,@Street,@ResidenceNumber,@Postcode,@Email)";
 
             using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -82,7 +82,8 @@ namespace ProjektHurtownia
                         City = user.City,
                         Street = user.City,
                         ResidenceNumber = user.ResidenceNumber,
-                        Postcode = user.Postcode
+                        Postcode = user.Postcode,
+                        Email = user.Email
                     });
                 }
                 catch (Exception ex)
