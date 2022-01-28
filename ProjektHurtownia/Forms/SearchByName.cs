@@ -35,9 +35,11 @@ namespace ProjektHurtownia.Forms
 
         private void AddOrderButtonColumn()
         {
-            DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn();
-            makeOrderButton.Name = "Dodaj do koszyka";
-            makeOrderButton.Text = "Wybierz";
+            DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn
+            {
+                Name = "Dodaj do koszyka",
+                Text = "Wybierz"
+            };
             int columnIndex = 5;
             makeOrderButton.UseColumnTextForButtonValue = true;
             dataGridView1.Columns.Insert(columnIndex, makeOrderButton);
@@ -72,7 +74,7 @@ namespace ProjektHurtownia.Forms
             {
                 orderASCButton.Visible = false;
                 orderDESCButton.Visible = false;
-                MessageBox.Show("Nie zwrócono żadnych wyników. Zmień filtry.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Nie zwrócono żadnych wyników. Zmień filtry.", "Brak wyszukań", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else
             {
@@ -98,7 +100,7 @@ namespace ProjektHurtownia.Forms
                     Close();
                 }
                 else
-                    MessageBox.Show("Brak dostępnych egzemplarzy. Niemożliwe dodanie do koszyka.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Brak dostępnych egzemplarzy. Niemożliwe dodanie do koszyka.", "Brak produktu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -128,6 +130,11 @@ namespace ProjektHurtownia.Forms
             AddProviderColumn();
             AddOrderButtonColumn();
             ChangeColumnsAlignment();
+        }
+
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            dataGridView1.ClearSelection();
         }
     }
 }

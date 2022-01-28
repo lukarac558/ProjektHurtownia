@@ -1,30 +1,30 @@
 ﻿using MySqlConnector;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Data;
 using Dapper;
 using System.Data.Common;
-using System.Security.Cryptography;
 using ProjektHurtownia.Classes;
 
 namespace ProjektHurtownia
 {
-    class DateBase
+    public class DateBase
     {
         public static int idUser = -1;
         public static string permission = "";
         public static Dictionary<int, int> cart = new Dictionary<int, int>();
-        private static DateBase instance = new DateBase();
         private DateBase() { }
 
-        private static DateBase Instance
+        private static DateBase instance;
+        public static DateBase GetInstance()
         {
-            get { return instance; }
+            if (instance == null)
+            {
+                instance = new DateBase();
+            }
+            return instance;
         }
 
         public static void Login(string login, string password)
@@ -48,11 +48,11 @@ namespace ProjektHurtownia
                         permission = rd.GetString(1);
                     }
                     else
-                        MessageBox.Show("Niepoprawne dane");
+                       MessageBox.Show("Niepoprawne dane logowania.", "Błąd logowania", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -63,32 +63,62 @@ namespace ProjektHurtownia
             permission = "";
         }
 
+        public static bool IsLoginUsed(string login)
+        {
+            string query = $"SELECT COUNT(*) FROM [user] WHERE login=@Login";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Login", login);
+                try
+                {
+                    connection.Open();
+                    SqlDataReader rd = command.ExecuteReader();
+                    if (rd.HasRows)
+                    {
+                        rd.Read();
+                        if (rd.GetInt32(0) > 0)
+                            return true;
+                        else
+                            return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return true;
+            }
+        }
+
         public static void Register(User user)
         {
             string query = $"INSERT INTO [user] (login,password,permission,name,surname,city,street,residence_number,postcode,email)" +
-                    $" VALUES (@Login, @Password,@Permission,@Name,@Surname,@City,@Street,@ResidenceNumber,@Postcode,@Email)";
+                    $" VALUES (@Login,@Password,@Permission,@Name,@Surname,@City,@Street,@ResidenceNumber,@Postcode,@Email)";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
                     connection.Execute(query, new
                     {
-                        Login = user.Login,
-                        Password = user.Password,
-                        Permission = user.Permission,
-                        Name = user.Name,
-                        Surname = user.Surname,
-                        City = user.City,
-                        Street = user.City,
-                        ResidenceNumber = user.ResidenceNumber,
-                        Postcode = user.Postcode,
-                        Email = user.Email
+                        user.Login,
+                        user.Password,
+                        user.Permission,
+                        user.Name,
+                        user.Surname,
+                        user.City,
+                        user.Street,
+                        user.ResidenceNumber,
+                        user.Postcode,
+                        user.Email
                     });
+                    MessageBox.Show("Poprawnie utworzono konto. Od teraz możesz zalogować się na konto.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -115,9 +145,9 @@ namespace ProjektHurtownia
                 catch (Exception ex)
                 {
                     if (ex is SqlException)
-                        MessageBox.Show("Podana nazwa produktu istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Podana nazwa produktu istnieje już w bazie.", "Nazwa zajęta", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "Błąd dodawania", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -127,7 +157,7 @@ namespace ProjektHurtownia
             string query = $"UPDATE product SET product_name=@Name, type_id=@Type, discipline_id=@Discipline, unit_quantity=@Quantity," +
                 $" unit_price=@Price, provider_id=@Provider WHERE product_id=@ProductId";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
@@ -139,12 +169,16 @@ namespace ProjektHurtownia
                         Quantity = product.UnitQuantity,
                         Price = product.UnitPrice,
                         Provider = product.ProviderId,
-                        ProductId = product.ProductId
+                        product.ProductId
                     });
+                    MessageBox.Show("Poprawnie edytowano produkt.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    if (ex is SqlException)
+                        MessageBox.Show("Podana nazwa produktu istnieje już w bazie.", "Nazwa zajęta", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                        MessageBox.Show(ex.Message, "Błąd podczas edytowania", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -172,7 +206,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return true;
             }
@@ -184,40 +218,40 @@ namespace ProjektHurtownia
             {
                 string query = $"DELETE FROM product WHERE product_id=@ProductId";
 
-                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
                 {
                     try
                     {
                         connection.Execute(query, new { ProductId = productId });
-                        MessageBox.Show("Pomyślnie usunięto przedmiot.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Pomyślnie usunięto przedmiot.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
             else
-                MessageBox.Show("Usunięcie niemożliwe. Wybrany produkt został zamówiony już przez klientów.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Usunięcie niemożliwe. Wybrany produkt został zamówiony już przez klientów.", "Produkt w obiegu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         public static void AddNewProvider(string provider, int guaranteePeriod)
         {
             string query = $"INSERT INTO provider(provider_name, guarantee_period) VALUES (@Name, @Guarantee)";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
                     connection.Execute(query, new { Name = provider, Guarantee = guaranteePeriod });
-                    MessageBox.Show("Pomyślnie dodano dostawcę do bazy.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Pomyślnie dodano dostawcę do bazy.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
                     if (ex is SqlException)
-                        MessageBox.Show("Podany dostawca istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Podany dostawca istnieje już w bazie.", "Istniejący dostawca", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else
-                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -226,7 +260,7 @@ namespace ProjektHurtownia
         {
             string query = $"UPDATE provider SET provider_name=@Name, guarantee_period=@Guarantee WHERE provider_name=@PreviosProvider";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
@@ -236,13 +270,14 @@ namespace ProjektHurtownia
                         Guarantee = newProvider.GuaranteePeriod,
                         PreviosProvider = previousProvider
                     });
+                    MessageBox.Show("Pomyślnie edytowano dostawcę.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
                     if (ex is SqlException)
-                        MessageBox.Show("Podany dostawca istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Podany dostawca istnieje już w bazie.", "Istniejący dostawca", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -271,7 +306,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return true;
             }
@@ -282,40 +317,40 @@ namespace ProjektHurtownia
             {
                 string query = $"DELETE FROM provider WHERE provider_name=@Provider";
 
-                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
                 {
                     try
                     {
                         connection.Execute(query, new { Provider = provider });
-                        MessageBox.Show("Pomyślnie usunięto dostawcę.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Pomyślnie usunięto dostawcę.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
             else
-                MessageBox.Show("Usunięcie niemożliwe. Dostawca jest wykorzystany w istniejącym produkcie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Usunięcie niemożliwe. Dostawca jest wykorzystany w istniejącym produkcie.", "Dostawca w obiegu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         public static void AddNewType(string type)
         {
             string query = $"INSERT INTO product_type(product_type) VALUES (@Type)";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
                     connection.Execute(query, new { Type = type });
-                    MessageBox.Show("Pomyślnie dodano typ do bazy.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Pomyślnie dodano typ do bazy.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
                     if(ex is SqlException)
-                        MessageBox.Show("Podany typ istniał już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Podany typ istniał już w bazie.", "Istniejący typ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }     
@@ -324,22 +359,23 @@ namespace ProjektHurtownia
         {
             string query = $"UPDATE product_type SET product_type=@NewType WHERE product_type=@PreviuosType";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
                     connection.Execute(query, new
                     {
-                        NewType = newType,
-                        PreviuosType = previousType
+                       NewType = newType,
+                       PreviuosType = previousType
                     });
+                    MessageBox.Show("Pomyślnie edytowano typ.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
                     if (ex is SqlException)
-                        MessageBox.Show("Podany typ istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Podany typ istnieje już w bazie.", "Istniejący dostawca", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -368,7 +404,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return true;
             }
@@ -379,40 +415,40 @@ namespace ProjektHurtownia
             {
                 string query = $"DELETE FROM product_type WHERE product_type=@Type";
 
-                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
                 {
                     try
                     {
-                        connection.Execute(query, new { Type= type });
-                        MessageBox.Show("Pomyślnie usunięto typ.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        connection.Execute(query, new { Type = type });
+                        MessageBox.Show("Pomyślnie usunięto typ.", "Suckes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
             else
-                MessageBox.Show("Usunięcie niemożliwe. Typ jest wykorzystany w istniejącym produkcie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Usunięcie niemożliwe. Typ jest wykorzystany w istniejącym produkcie.", "Typ w obiegu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         public static void AddNewDiscipline(string discipline)
         {
             string query = $"INSERT INTO product_discipline(discipline_kind) VALUES (@Discipline)";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
                     connection.Execute(query, new { Discipline = discipline });
-                    MessageBox.Show("Pomyślnie dodano dyscyplinę do bazy.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Pomyślnie dodano dyscyplinę do bazy.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
                     if (ex is SqlException)
                         MessageBox.Show("Podana dyscyplina istniała już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else
-                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -421,7 +457,7 @@ namespace ProjektHurtownia
         {
             string query = $"UPDATE product_discipline SET discipline_kind=@NewDiscipline WHERE discipline_kind=@PreviousDiscipline";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
@@ -430,13 +466,14 @@ namespace ProjektHurtownia
                         NewDiscipline = newDiscipline,
                         PreviousDiscipline = previousDiscipline
                     });
+                    MessageBox.Show("Pomyślnie edytowano dyscyplinę.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
                     if (ex is SqlException)
-                        MessageBox.Show("Podana dyscyplina istnieje już w bazie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Podana dyscyplina istnieje już w bazie.", "Istniejąca dyscyplina", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -465,7 +502,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return true;
             }
@@ -476,28 +513,28 @@ namespace ProjektHurtownia
             {
                 string query = $"DELETE FROM product_discipline WHERE discipline_kind=@Discipline";
 
-                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
                 {
                     try
                     {
                         connection.Execute(query, new { Discipline = discipline });
-                        MessageBox.Show("Pomyślnie usunięto dyscyplinę.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Pomyślnie usunięto dyscyplinę.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
             else
-                MessageBox.Show("Usunięcie niemożliwe. Dostawca jest wykorzystany w istniejącym produkcie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Usunięcie niemożliwe. Dyscyplina jest wykorzystany w istniejącym produkcie.", "Istniejąca dyscyplina", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         
         public static void AddNewOrder(Order order)
         {
             string query = $"INSERT INTO [order] (order_id,order_position_id, user_id, order_date) VALUES (@OrderId, @OrderPositionId, @UserId, @OrderDate)";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
@@ -506,35 +543,35 @@ namespace ProjektHurtownia
                         OrderId = order.IdOrder,
                         OrderPositionId = order.IdOrderPosition,
                         UserId = idUser,
-                        OrderDate = order.OrderDate
+                        order.OrderDate
                     });
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
 
-        public static void AddNewOrderPosition(OrderPosition orderPosition) // powinna zwracać int jeśli błąd przy wykonaniu obsłużyć w koszyku 
+        public static void AddNewOrderPosition(OrderPosition orderPosition)
         {
             string query = $"INSERT INTO order_position (total_cost,count,guarantee_end,product_id) VALUES (@Cost,@Count,@Guarantee,@ProductId)";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
                     connection.Execute(query, new
                     {
                         Cost = orderPosition.TotalCost,
-                        Count = orderPosition.Count,
+                        orderPosition.Count,
                         Guarantee = orderPosition.GuaranteeEnd,
                         ProductId = orderPosition.IdProduct
                     });
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -542,19 +579,19 @@ namespace ProjektHurtownia
         {
             string query = $"UPDATE product SET unit_quantity=@NewUnitQuantity WHERE product_id=@ProductId";
 
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 try
                 {
                     connection.Execute(query, new
                     {
-                        newUnitQuantity,
+                        NewUnitQuantity = newUnitQuantity,
                         ProductId = productId
                     });
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
@@ -581,7 +618,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             return -1; // type didn't find in database
@@ -606,12 +643,10 @@ namespace ProjektHurtownia
                         rd.Read();
                         type = rd.GetString(0);
                     }
-                    else
-                        MessageBox.Show("Niepoprawne dane");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return type;
             }
@@ -639,7 +674,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             return -1; // type didn't find in database
@@ -664,12 +699,10 @@ namespace ProjektHurtownia
                         rd.Read();
                         discipline = rd.GetString(0);
                     }
-                    else
-                        MessageBox.Show("Niepoprawne dane");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return discipline;
             }
@@ -697,7 +730,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             return -1; // type didn't find in database
@@ -722,12 +755,10 @@ namespace ProjektHurtownia
                         provider.Read();
                         prov = new Provider(providerId, provider[0].ToString(), (short)provider[1]);
                     }
-                    else
-                        MessageBox.Show("Nie stnieje dostawca o takim id.");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return prov;
             }
@@ -753,12 +784,10 @@ namespace ProjektHurtownia
                         pro = new Product(Int32.Parse(product[0].ToString()), product[1].ToString(), Int32.Parse(product[2].ToString()), Int32.Parse(product[3].ToString()),
                                     Int32.Parse(product[4].ToString()), Double.Parse(product[5].ToString()), Int32.Parse(product[6].ToString()));
                     }
-                    else
-                        MessageBox.Show("Nie istnieje produkt o takim id");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return pro;
             }
@@ -787,7 +816,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return null;
             }
@@ -816,7 +845,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return null;
             }
@@ -845,7 +874,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return null;
             }
@@ -853,7 +882,6 @@ namespace ProjektHurtownia
 
         private static string PrepareQuery(List<string> list, string tableName)
         {
-            string table = tableName;
             string query = "";
 
             if (list.Count > 0)
@@ -864,7 +892,6 @@ namespace ProjektHurtownia
                 query = query.Remove(query.Length - 3, 3);
                 query += ')';
             }
-
             return query;
         }
 
@@ -916,7 +943,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return null;
             }
@@ -951,7 +978,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return null;
             }
@@ -993,13 +1020,13 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return null;
             }
         }
 
-        public static List<Order> GetUserOrder() // zwraca zamówienia danego użytkownika
+        public static List<Order> GetUserOrder()
         {
             List<Order> list = new List<Order>();
             string query = $"SELECT order_id,order_position_id,order_date FROM [order] WHERE user_id=@UserId";
@@ -1023,7 +1050,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return null;
             }
@@ -1049,12 +1076,10 @@ namespace ProjektHurtownia
                         position = new OrderPosition(orderPositionId, Double.Parse(order[0].ToString()), Int32.Parse(order[1].ToString()),
                             Int32.Parse(order[3].ToString()), DateTime.Parse(order[2].ToString()));
                     }
-                    else
-                        MessageBox.Show("Nie istnieje pozycja zamówienia o takim id");
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return position;
             }
@@ -1089,7 +1114,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return false;
             }
@@ -1101,22 +1126,22 @@ namespace ProjektHurtownia
             {
                 string query = $"DELETE FROM order_position WHERE order_position_id=@OrderPositionId";
 
-                using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
                 {
                     try
                     {
                         connection.Execute(query, new { OrderPositionId = orderPositionId });
                         UpdateProductCount(productId, newUnitQuantity);
-                        MessageBox.Show("Pomyślnie dokonano zwrotu.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Pomyślnie dokonano zwrotu.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     catch (Exception ex)
                     {
-                     MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                     MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
             else
-                MessageBox.Show("Zwrot niemożliwy, gdyż upłynął termin.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Zwrot niemożliwy, gdyż upłynął termin.", "Termin upłynął", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         public static int MaxCurrentOrderId()
@@ -1134,7 +1159,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             return -1;
@@ -1155,7 +1180,7 @@ namespace ProjektHurtownia
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message.ToString(), "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             return -1;

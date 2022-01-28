@@ -24,7 +24,6 @@ namespace ProjektHurtownia.Forms
             addDisciplineButton.Visible = false;
             addProviderButton.Visible = false;
             label1.Visible = true;
-            label3.Visible = true;
             addButton.Visible = true;
             textBox1.Visible = true;
             dataGridView1.Visible = true;
@@ -50,18 +49,22 @@ namespace ProjektHurtownia.Forms
         }
 
         private void AddButons()
-        {          
-            DataGridViewButtonColumn editButton = new DataGridViewButtonColumn();
-            editButton.Name = "Edytuj";
-            editButton.Text = "Edytuj";
-            editButton.UseColumnTextForButtonValue = true;
+        {
+            DataGridViewButtonColumn editButton = new DataGridViewButtonColumn
+            {
+                Name = "Edytuj",
+                Text = "Edytuj",
+                UseColumnTextForButtonValue = true
+            };
             int columnIndex = 1;
             dataGridView1.Columns.Insert(columnIndex, editButton);
 
-            DataGridViewButtonColumn deleteButton = new DataGridViewButtonColumn();
-            deleteButton.Name = "Usuń";
-            deleteButton.Text = "Usuń";
-            deleteButton.UseColumnTextForButtonValue = true;
+            DataGridViewButtonColumn deleteButton = new DataGridViewButtonColumn
+            {
+                Name = "Usuń",
+                Text = "Usuń",
+                UseColumnTextForButtonValue = true
+            };
             columnIndex = 2;
             dataGridView1.Columns.Insert(columnIndex, deleteButton);
         }
@@ -71,7 +74,6 @@ namespace ProjektHurtownia.Forms
             InitializeComponent();
             ((TextBox)numericUpDown1.Controls[1]).MaxLength = 4;
             label1.Visible = false;
-            label3.Visible = false;
             label4.Visible = false;
             addButton.Visible = false;
             textBox1.Visible = false;
@@ -119,7 +121,7 @@ namespace ProjektHurtownia.Forms
                 numericUpDown1.Value = 0;
             }      
             else
-                MessageBox.Show(" Minimalna długość wyrazu to 3, a maksymalna 50 liter.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);         
+                MessageBox.Show("Minimalna długość to 3 a maksymalna 50 liter.\n", "Niepoprawna długość", MessageBoxButtons.OK, MessageBoxIcon.Warning);         
         }
 
         private void addTypeButton_Click(object sender, EventArgs e)
@@ -216,6 +218,11 @@ namespace ProjektHurtownia.Forms
         {
             e.Handled = !char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar)
              && !char.IsSeparator(e.KeyChar) && !char.IsDigit(e.KeyChar);
+        }
+
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            dataGridView1.ClearSelection();
         }
     }
 }

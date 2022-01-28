@@ -50,9 +50,11 @@ namespace ProjektHurtownia.Forms
 
         private void AddOrderButtonColumn()
         {
-            DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn();
-            makeOrderButton.Name = "Dodaj do koszyka";
-            makeOrderButton.Text = "Wybierz";
+            DataGridViewButtonColumn makeOrderButton = new DataGridViewButtonColumn
+            {
+                Name = "Dodaj do koszyka",
+                Text = "Wybierz"
+            };
             int columnIndex = 5;
             makeOrderButton.UseColumnTextForButtonValue = true;
             dataGridView1.Columns.Insert(columnIndex, makeOrderButton);          
@@ -99,7 +101,7 @@ namespace ProjektHurtownia.Forms
                 {
                     orderASCButton.Visible = false;
                     orderDESCButton.Visible = false;
-                    MessageBox.Show("Nie zwrócono żadnych wyników. Zmień filtry.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Nie zwrócono żadnych wyników. Zmień filtry.", "Brak wyszukań", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
@@ -108,7 +110,7 @@ namespace ProjektHurtownia.Forms
                 }
             }
             else
-                MessageBox.Show("Cena maksymalna musi być większa od minimalnej.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Cena maksymalna musi być większa od minimalnej.", "Zły zakres cen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e) {}
@@ -128,7 +130,7 @@ namespace ProjektHurtownia.Forms
                     Close();
                 }
                 else
-                    MessageBox.Show("Brak dostępnych egzemplarzy. Niemożliwe dodanie do koszyka.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Brak dostępnych egzemplarzy. Niemożliwe dodanie do koszyka.", "Brak produktu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -174,6 +176,11 @@ namespace ProjektHurtownia.Forms
             {
                 e.Handled = true;
             }
+        }
+
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            dataGridView1.ClearSelection();
         }
     }
 }

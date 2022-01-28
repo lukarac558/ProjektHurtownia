@@ -49,17 +49,21 @@ namespace ProjektHurtownia.Forms
             productsDataGridView.Columns["Cena"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
             productsDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            DataGridViewButtonColumn editProductButton = new DataGridViewButtonColumn();
-            editProductButton.Name = "Edytuj produkt";
-            editProductButton.Text = "Edytuj";
-            editProductButton.UseColumnTextForButtonValue = true;
+            DataGridViewButtonColumn editProductButton = new DataGridViewButtonColumn
+            {
+                Name = "Edytuj produkt",
+                Text = "Edytuj",
+                UseColumnTextForButtonValue = true
+            };
             int columnIndex = 4;
             productsDataGridView.Columns.Insert(columnIndex, editProductButton);
 
-            DataGridViewButtonColumn deleteProductButton = new DataGridViewButtonColumn();
-            deleteProductButton.Name = "Usuń produkt";
-            deleteProductButton.Text = "Usuń";
-            deleteProductButton.UseColumnTextForButtonValue = true;
+            DataGridViewButtonColumn deleteProductButton = new DataGridViewButtonColumn
+            {
+                Name = "Usuń produkt",
+                Text = "Usuń",
+                UseColumnTextForButtonValue = true
+            };
             columnIndex = 5;
             productsDataGridView.Columns.Insert(columnIndex, deleteProductButton);
         }
@@ -83,15 +87,15 @@ namespace ProjektHurtownia.Forms
             int difference = priceString.Length - (index + 1);
 
             if (difference > 2)
-            error += "Cena musi zawierać 2 cyfry po przecinku i nie być większa od 200000,00zł.";
+            error += "Cena musi zawierać 2 cyfry po przecinku i nie być większa od 200000,00zł.\n";
 
             Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9_ ]{3,50}$");
          
             if (!productName.IsMatch(productNameTextBox.Text))
-                error = "Należy wprowadzić nazwę produktu. Minimalna liczba znaków to 3 a maksymalna 50.";
+                error = "Należy wprowadzić nazwę produktu. Minimalna liczba znaków to 3 a maksymalna 50.\n";
 
             if(error != "")
-                MessageBox.Show(error, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(error, "Bład operacji", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
                 typeId = DateBase.GetTypeId(typeComboBox.Text);
@@ -105,7 +109,6 @@ namespace ProjektHurtownia.Forms
                 else if (button1.Text == "Edytuj wybrany produkt")
                 {
                     DateBase.EditProduct(new Product(productId, productNameTextBox.Text, typeId, disciplineId, Convert.ToInt32(countUpDown.Value), Convert.ToDouble(priceUpDown.Value), providerId));
-                    MessageBox.Show("Edytowano produkt w bazie.");
                     button1.Text = "Dodaj nowy produkt";
                     productNameTextBox.Text = "";
                     countUpDown.Value = 1;
@@ -173,6 +176,11 @@ namespace ProjektHurtownia.Forms
             {
                 e.Handled = true;
             }
+        }
+
+        private void productsDataGridView_SelectionChanged(object sender, EventArgs e)
+        {
+            productsDataGridView.ClearSelection();
         }
     }
 }

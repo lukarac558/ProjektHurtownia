@@ -13,7 +13,7 @@ namespace ProjektHurtownia.Forms
 {
     public partial class CartPanel : Form
     {
-        List<OrderPosition> orderPositionList = new List<OrderPosition>();
+        private readonly List<OrderPosition> orderPositionList = new List<OrderPosition>();
         double totalCost;
 
         private void UpdateDataGridView()
@@ -44,9 +44,11 @@ namespace ProjektHurtownia.Forms
             cartGridView.Columns.Add("Marka", "Marka");
             cartGridView.Columns.Add("Ilosc", "Ilość");
             cartGridView.Columns.Add("Cena", "Cena całkowita");
-            DataGridViewButtonColumn deletePositionButton = new DataGridViewButtonColumn();
-            deletePositionButton.Name = "Usuń z koszyka";
-            deletePositionButton.Text = "Usuń";
+            DataGridViewButtonColumn deletePositionButton = new DataGridViewButtonColumn
+            {
+                Name = "Usuń z koszyka",
+                Text = "Usuń"
+            };
             int columnIndex = 5;
             deletePositionButton.UseColumnTextForButtonValue = true;
             cartGridView.Columns.Insert(columnIndex, deletePositionButton);
@@ -76,7 +78,7 @@ namespace ProjektHurtownia.Forms
 
                 DateBase.cart.Remove(productId);
                 UpdateDataGridView();
-                MessageBox.Show("Usunięto produkt z koszyka.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Usunięto produkt z koszyka.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -114,11 +116,15 @@ namespace ProjektHurtownia.Forms
 
                 DateBase.cart.Clear();
                 UpdateDataGridView();
-                MessageBox.Show("Pomyślnie złożono zamówienie.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Pomyślnie złożono zamówienie.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else
-                MessageBox.Show("Koszyk jest pusty. Uzupełnij koszyk przed złożeniem zamówienia.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Koszyk jest pusty. Uzupełnij koszyk przed złożeniem zamówienia.", "Pusty koszyk", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
 
+        private void cartGridView_SelectionChanged(object sender, EventArgs e)
+        {
+            cartGridView.ClearSelection();
         }
     }
 }

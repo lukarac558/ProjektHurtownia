@@ -37,9 +37,11 @@ namespace ProjektHurtownia.Forms
 
             if (!login.IsMatch(loginTextBox.Text))
                 error += "Login musi zawierać od 3 do 20 znaków i nie zaczynać się od cyfry.\n";
+            else if (DateBase.IsLoginUsed(loginTextBox.Text))
+                error += "Wprowadzony login istnieje już w bazie, wprowadź inny.\n";
 
             if (!password.IsMatch(passwordTextBox.Text))
-                error += "Hasło musi zawierać od 8 do 20, w tym minimum 1 cyfrę i 1 literę.\n";
+                error += "Hasło musi zawierać od 8 do 20 znaków, w tym minimum 1 cyfrę i 1 literę.\n";
 
             if (!passwordTextBox.Text.Equals(password2TextBox.Text))
                 error += "Podane hasła nie zgadzają się.\n";
@@ -54,7 +56,7 @@ namespace ProjektHurtownia.Forms
                 error += "Nazwisko musi zawierać od 2 do 30 znaków.\n";
 
             if (!postcode.IsMatch(postcodeTextBox.Text))
-                error += "Wprowadzono niepoprawny kod pocztowy.\n";
+                error += "Wprowadzono niepoprawny kod pocztowy. Poprawny format to XX-XXX\n";
 
             if (!city.IsMatch(cityTextBox.Text))
                 error += "Miasto musi zawierać od 2 do 30 znaków.\n";
@@ -66,14 +68,12 @@ namespace ProjektHurtownia.Forms
                 error += "Wprowadzono niepoprawny numer budynku.\n";
 
             if (error != "")
-                MessageBox.Show(error, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(error, "Błąd rejestracji", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
                 DateBase.Register(new User(loginTextBox.Text, Sha1.HashPassword(passwordTextBox.Text), nameTextBox.Text, surnameTextBox.Text, cityTextBox.Text,
                     streetTextBox.Text, residenceNumberTextBox.Text, postcodeTextBox.Text, emailTextBox.Text));
-
-                MessageBox.Show("Poprawnie utworzono konto. Od teraz możesz zalogować się na konto.");
-
+              
                 Login loginL = new Login();
                 Hide();
                 loginL.ShowDialog();

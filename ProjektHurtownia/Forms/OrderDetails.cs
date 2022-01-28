@@ -14,10 +14,10 @@ namespace ProjektHurtownia.Forms
 
     public partial class OrderDetails : Form
     {
-        private int idProduct;
+        private readonly int idProduct;
         private int count =1;
         private double totalCost;
-        private Product product;
+        private readonly Product product;
 
         public OrderDetails(int idProduct)
         {
@@ -41,12 +41,12 @@ namespace ProjektHurtownia.Forms
             if (DateBase.cart.ContainsKey(idProduct))
             {
                 DateBase.cart[idProduct] = count;
-                MessageBox.Show("Produkt był już w koszyku. Nadpisano liczbę produktów.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Produkt był już w koszyku. Nadpisano liczbę produktów.", "Zmiana liczby produktu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else
             {
                 DateBase.cart.Add(idProduct, count);
-                MessageBox.Show("Pomyślnie dodano nowy produkt do koszyka.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Pomyślnie dodano nowy produkt do koszyka.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
             CartPanel cart = new CartPanel();
@@ -76,6 +76,11 @@ namespace ProjektHurtownia.Forms
             {
                 e.Handled = true;
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Jeśli liczba nie uległa zmianie, wówczas była poprawna.\nLiczbę równą 0 zamieniono na 1.\nZa duża liczbę zamieniono na maksymalną możliwą.\n", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 }

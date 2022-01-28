@@ -49,9 +49,11 @@ namespace ProjektHurtownia.Forms
             dataGridView1.Columns.Add("Ilosc", "Ilość");
             dataGridView1.Columns.Add("DataZamowienia", "Data zamówienia");
             dataGridView1.Columns.Add("KoniecGwarancji", "Data końca gwarancji");
-            DataGridViewButtonColumn cancelOrderButton = new DataGridViewButtonColumn();
-            cancelOrderButton.Name = "Zwróć zamówienie";
-            cancelOrderButton.Text = "Zwróć";
+            DataGridViewButtonColumn cancelOrderButton = new DataGridViewButtonColumn
+            {
+                Name = "Zwróć zamówienie",
+                Text = "Zwróć"
+            };
             int columnIndex = 8;
             cancelOrderButton.UseColumnTextForButtonValue = true;
             dataGridView1.Columns.Insert(columnIndex, cancelOrderButton);         
@@ -80,6 +82,11 @@ namespace ProjektHurtownia.Forms
             Hide();
             welcome.ShowDialog();
             Close();
+        }
+
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            dataGridView1.ClearSelection();
         }
     }
 }
