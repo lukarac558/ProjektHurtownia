@@ -40,7 +40,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.countUpDown = new System.Windows.Forms.NumericUpDown();
-            this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.totalCostTextBox = new System.Windows.Forms.TextBox();
@@ -50,7 +49,6 @@
             this.button2 = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.button3 = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.countUpDown)).BeginInit();
             this.panel1.SuspendLayout();
@@ -61,7 +59,7 @@
             // 
             this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(284, 431);
+            this.button1.Location = new System.Drawing.Point(284, 422);
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(84, 43);
@@ -172,10 +170,10 @@
             // 
             // countUpDown
             // 
-            this.countUpDown.Location = new System.Drawing.Point(284, 312);
+            this.countUpDown.Location = new System.Drawing.Point(284, 314);
             this.countUpDown.Margin = new System.Windows.Forms.Padding(2);
-            this.countUpDown.Minimum = new decimal(new int[] {
-            1,
+            this.countUpDown.Maximum = new decimal(new int[] {
+            99999,
             0,
             0,
             0});
@@ -190,17 +188,6 @@
             0});
             this.countUpDown.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
             this.countUpDown.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.countUpDown_KeyPress);
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.ForeColor = System.Drawing.Color.White;
-            this.label6.Location = new System.Drawing.Point(243, 314);
-            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(29, 13);
-            this.label6.TabIndex = 12;
-            this.label6.Text = "Ilość";
             // 
             // label7
             // 
@@ -221,7 +208,7 @@
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label9.ForeColor = System.Drawing.Color.White;
-            this.label9.Location = new System.Drawing.Point(279, 367);
+            this.label9.Location = new System.Drawing.Point(271, 353);
             this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(109, 18);
@@ -230,7 +217,7 @@
             // 
             // totalCostTextBox
             // 
-            this.totalCostTextBox.Location = new System.Drawing.Point(284, 396);
+            this.totalCostTextBox.Location = new System.Drawing.Point(284, 383);
             this.totalCostTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.totalCostTextBox.Name = "totalCostTextBox";
             this.totalCostTextBox.ReadOnly = true;
@@ -241,7 +228,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.ForeColor = System.Drawing.Color.White;
-            this.label10.Location = new System.Drawing.Point(372, 399);
+            this.label10.Location = new System.Drawing.Point(372, 386);
             this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(16, 13);
@@ -298,24 +285,12 @@
             this.panel2.Size = new System.Drawing.Size(696, 100);
             this.panel2.TabIndex = 22;
             // 
-            // button3
-            // 
-            this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.button3.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.button3.Location = new System.Drawing.Point(284, 337);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(84, 27);
-            this.button3.TabIndex = 23;
-            this.button3.Text = "Sprawdź ilość";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label8.ForeColor = System.Drawing.Color.White;
-            this.label8.Location = new System.Drawing.Point(279, 283);
+            this.label8.Location = new System.Drawing.Point(271, 283);
             this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(97, 18);
@@ -329,7 +304,6 @@
             this.BackColor = System.Drawing.Color.Silver;
             this.ClientSize = new System.Drawing.Size(696, 612);
             this.Controls.Add(this.label8);
-            this.Controls.Add(this.button3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.guaranteeTextBox);
@@ -337,7 +311,6 @@
             this.Controls.Add(this.label10);
             this.Controls.Add(this.totalCostTextBox);
             this.Controls.Add(this.label9);
-            this.Controls.Add(this.label6);
             this.Controls.Add(this.countUpDown);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
@@ -379,7 +352,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown countUpDown;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox totalCostTextBox;
@@ -389,7 +361,6 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Label label8;
     }
 }

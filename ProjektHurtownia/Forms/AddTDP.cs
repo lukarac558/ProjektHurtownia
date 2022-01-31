@@ -53,7 +53,7 @@ namespace ProjektHurtownia.Forms
             DataGridViewButtonColumn editButton = new DataGridViewButtonColumn
             {
                 Name = "Edytuj",
-                Text = "Edytuj",
+                Text = "Przejdź do edycji",
                 UseColumnTextForButtonValue = true
             };
             int columnIndex = 1;

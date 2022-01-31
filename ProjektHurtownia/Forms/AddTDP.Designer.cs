@@ -124,7 +124,7 @@ namespace ProjektHurtownia.Forms
             // 
             this.addButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.addButton.ForeColor = System.Drawing.Color.White;
-            this.addButton.Location = new System.Drawing.Point(211, 237);
+            this.addButton.Location = new System.Drawing.Point(214, 235);
             this.addButton.Name = "addButton";
             this.addButton.Size = new System.Drawing.Size(76, 36);
             this.addButton.TabIndex = 6;

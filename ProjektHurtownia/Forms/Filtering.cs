@@ -16,8 +16,8 @@ namespace ProjektHurtownia.Forms
         public Filtering()
         {
             InitializeComponent();
-            ((TextBox)numericUpDown1.Controls[1]).MaxLength = 8;
-            ((TextBox)numericUpDown2.Controls[1]).MaxLength = 8;
+            ((TextBox)numericUpDown1.Controls[1]).MaxLength = 6;
+            ((TextBox)numericUpDown2.Controls[1]).MaxLength = 6;
             var typeList = DateBase.GetAllTypes();
             var disciplineList = DateBase.GetAllDisciplines();
             var providerList = DateBase.GetAllProviders();

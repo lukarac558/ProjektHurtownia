@@ -14,20 +14,7 @@ namespace ProjektHurtownia.Forms
     public partial class CurrentOrders : Form
     {
         private List<Order> currentOrders = new List<Order>();
-
-        private void AddToDataGridView()
-        {
-            currentOrders = DateBase.GetUserOrder();
-            dataGridView1.Rows.Clear();
-
-            foreach (var order in currentOrders)
-            {
-                OrderPosition orderPosition = DateBase.GetOrderPosition(order.IdOrderPosition);
-                Product p = DateBase.GetProduct(orderPosition.IdProduct);
-                dataGridView1.Rows.Add(order.IdOrder, order.IdOrderPosition, p.ProductName, DateBase.GetProviderById(p.ProviderId).ProviderName, orderPosition.TotalCost + " zł", orderPosition.Count, order.OrderDate, orderPosition.GuaranteeEnd, "Anuluj");
-            }
-            ChangeColumnsAlignment();
-        }
+        private List<OrderPosition> orderPositions = new List<OrderPosition>();
 
         private void ChangeColumnsAlignment()
         {
@@ -38,6 +25,26 @@ namespace ProjektHurtownia.Forms
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
+        private void AddToDataGridView()
+        {
+            currentOrders = DateBase.GetUserOrders();
+            orderPositions.Clear();
+            dataGridView1.Rows.Clear();
+
+            foreach (var order in currentOrders)
+            {
+                orderPositions = DateBase.GetOrderPositions(order.IdOrder);
+
+                foreach (var position in orderPositions)
+                {
+                    Product p = DateBase.GetProduct(position.IdProduct);
+                    dataGridView1.Rows.Add(order.IdOrder, position.IdOrderPosition, p.ProductName, DateBase.GetProviderById(p.ProviderId).ProviderName,
+                        position.TotalCost + " zł", position.Count, order.OrderDate, position.GuaranteeEnd, "Anuluj");
+                }
+            }
+            ChangeColumnsAlignment();
+        }
+      
         public CurrentOrders() // dodać opcję zwrotu zawówionych produktów(jeśli nie minął termin zwrotu)
         {
             InitializeComponent();
@@ -68,10 +75,13 @@ namespace ProjektHurtownia.Forms
                 DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
                 int orderPositionId = Int32.Parse(row.Cells["Pozycja"].Value.ToString());
                 OrderPosition orderPosition = DateBase.GetOrderPosition(orderPositionId);
-                
+                int orderId = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
+
                 int newCount = DateBase.GetProduct(orderPosition.IdProduct).UnitQuantity + orderPosition.Count;
-                DateBase.CancelOrder(orderPositionId, orderPosition.IdProduct, newCount);
-                
+                DateBase.ReturnOrderPosition(orderPositionId, orderPosition.IdProduct, newCount);
+
+                DateBase.DeleteOrder(orderId); // Jeśli usunięto wszystkie pozycje zamówienia, usunięte zostanie również zamówienie. 
+
                 AddToDataGridView();
             }
         }

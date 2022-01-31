@@ -86,16 +86,15 @@ namespace ProjektHurtownia.Forms
         {
             string provider;
             double cost;
-            int count, productId, providerId, maxOrderId, PositionId;
+            int count, productId, providerId, maxOrderId;
             DateTime guaranteeEnd;
 
             if (DateBase.cart.Count > 0)
             {
+                DateBase.AddNewOrder(new Order(0, DateBase.idUser, DateTime.Now));
+
                 maxOrderId = DateBase.MaxCurrentOrderId();
-
-                if (maxOrderId == -1)
-                    maxOrderId = 0;
-
+               
                 for (int i = 0; i < cartGridView.RowCount; i++)
                 {
                     DataGridViewRow row = cartGridView.Rows[i];
@@ -106,12 +105,8 @@ namespace ProjektHurtownia.Forms
                     productId = Int32.Parse(row.Cells["Identyfikator"].Value.ToString());
                     guaranteeEnd = DateTime.Now.AddDays(DateBase.GetProviderById(providerId).GuaranteePeriod);
 
-                    DateBase.AddNewOrderPosition(new OrderPosition(0, cost, count, productId, guaranteeEnd));
-
-                    DateBase.UpdateProductCount(productId, DateBase.GetProduct(productId).UnitQuantity - count);
-
-                    PositionId = DateBase.MaxCurrentOrderPositionId();
-                    DateBase.AddNewOrder(new Order(maxOrderId + 1, PositionId, DateBase.idUser, DateTime.Now));
+                    DateBase.AddNewOrderPosition(new OrderPosition(0, maxOrderId, cost, count, productId, guaranteeEnd));
+                    DateBase.UpdateProductCount(productId, DateBase.GetProduct(productId).UnitQuantity - count);            
                 }
 
                 DateBase.cart.Clear();

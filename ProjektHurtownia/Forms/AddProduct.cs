@@ -52,7 +52,7 @@ namespace ProjektHurtownia.Forms
             DataGridViewButtonColumn editProductButton = new DataGridViewButtonColumn
             {
                 Name = "Edytuj produkt",
-                Text = "Edytuj",
+                Text = "Przejdź do edycji",
                 UseColumnTextForButtonValue = true
             };
             int columnIndex = 4;
@@ -70,32 +70,40 @@ namespace ProjektHurtownia.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
+            Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9_ ]{3,50}$");
             string error = "";
+            Decimal price = priceUpDown.Value;
+            int count = (int)countUpDown.Value;
 
             if (typeComboBox.Text == "")
                 error += "Najpierw należy dodać typy do bazy, by móc dodać produkt.\n";
+
             if(disciplineComboBox.Text == "")
                 error += "Najpierw należy dodać dyscypliny do bazy, by móc dodać produkt.\n";
+
             if(providerComboBox.Text == "")
                 error += "Najpierw należy dodać dostawców do bazy, by móc dodać produkt.\n";
-
-            Decimal price = priceUpDown.Value;
+         
+            if (count == 0)
+                error += "Liczba egzemplarzy nie może być równa 0.\n";
 
             string priceString = price.ToString();
             int index = priceString.IndexOf(',');
-
             int difference = priceString.Length - (index + 1);
 
-            if (difference > 2)
-            error += "Cena musi zawierać 2 cyfry po przecinku i nie być większa od 200000,00zł.\n";
+            if (index != -1 && difference > 2)
+                error += "Cena może zawierać maksymalnie dwie cyfry po przecinku.\n";
+            
+            if (price == 0)
+                error += "Cena musi być większa od zera.\n";
+            else if(price > 200000)
+                error += "Cena nie może być większa od 200000,00zł.\n";
 
-            Regex productName = new Regex(@"^[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9_ ]{3,50}$");
-         
             if (!productName.IsMatch(productNameTextBox.Text))
                 error = "Należy wprowadzić nazwę produktu. Minimalna liczba znaków to 3 a maksymalna 50.\n";
 
             if(error != "")
-                MessageBox.Show(error, "Bład operacji", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(error, "Błąd operacji", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
                 typeId = DateBase.GetTypeId(typeComboBox.Text);

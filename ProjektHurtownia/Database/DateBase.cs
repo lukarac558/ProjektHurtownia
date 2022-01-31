@@ -141,6 +141,7 @@ namespace ProjektHurtownia
                         Price = product.UnitPrice,
                         Provider = product.ProviderId
                     });
+                    MessageBox.Show("Pomyślnie dodano produkt do bazy.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
@@ -171,7 +172,7 @@ namespace ProjektHurtownia
                         Provider = product.ProviderId,
                         product.ProductId
                     });
-                    MessageBox.Show("Poprawnie edytowano produkt.", "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Poprawnie edytowano produkt.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 catch (Exception ex)
                 {
@@ -532,7 +533,7 @@ namespace ProjektHurtownia
         
         public static void AddNewOrder(Order order)
         {
-            string query = $"INSERT INTO [order] (order_id,order_position_id, user_id, order_date) VALUES (@OrderId, @OrderPositionId, @UserId, @OrderDate)";
+            string query = $"INSERT INTO [order] (user_id,order_date) VALUES (@UserId,@OrderDate)";
 
             using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -540,8 +541,6 @@ namespace ProjektHurtownia
                 {
                     connection.Execute(query, new
                     {
-                        OrderId = order.IdOrder,
-                        OrderPositionId = order.IdOrderPosition,
                         UserId = idUser,
                         order.OrderDate
                     });
@@ -555,7 +554,7 @@ namespace ProjektHurtownia
 
         public static void AddNewOrderPosition(OrderPosition orderPosition)
         {
-            string query = $"INSERT INTO order_position (total_cost,count,guarantee_end,product_id) VALUES (@Cost,@Count,@Guarantee,@ProductId)";
+            string query = $"INSERT INTO order_position (order_id,total_cost,count,guarantee_end,product_id) VALUES (@OrderId,@Cost,@Count,@Guarantee,@ProductId)";
 
             using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -563,6 +562,7 @@ namespace ProjektHurtownia
                 {
                     connection.Execute(query, new
                     {
+                        OrderId = orderPosition.IdOrder,
                         Cost = orderPosition.TotalCost,
                         orderPosition.Count,
                         Guarantee = orderPosition.GuaranteeEnd,
@@ -1026,10 +1026,10 @@ namespace ProjektHurtownia
             }
         }
 
-        public static List<Order> GetUserOrder()
+        public static List<Order> GetUserOrders()
         {
             List<Order> list = new List<Order>();
-            string query = $"SELECT order_id,order_position_id,order_date FROM [order] WHERE user_id=@UserId";
+            string query = $"SELECT order_id,order_date FROM [order] WHERE user_id=@UserId";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -1042,7 +1042,38 @@ namespace ProjektHurtownia
                     {
                         foreach (DbDataRecord order in rd)
                         {
-                            Order o = new Order(Int32.Parse(order[0].ToString()), Int32.Parse(order[1].ToString()), idUser, DateTime.Parse(order[2].ToString()));
+                            Order o = new Order(Int32.Parse(order[0].ToString()), idUser, DateTime.Parse(order[1].ToString()));
+                            list.Add(o);
+                        }
+                        return list;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                return null;
+            }
+        }
+
+        public static List<OrderPosition> GetOrderPositions(int orderId)
+        {
+            List<OrderPosition> list = new List<OrderPosition>();
+            string query = $"SELECT order_position_id,total_cost,count,guarantee_end,product_id FROM order_position WHERE order_id=@OrderId";
+
+            using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@OrderId", orderId);
+                try
+                {
+                    connection.Open();
+                    using (var rd = command.ExecuteReader())
+                    {
+                        foreach (DbDataRecord order in rd)
+                        {
+                            OrderPosition o = new OrderPosition(Int32.Parse(order[0].ToString()), orderId, Double.Parse(order[1].ToString()), Int32.Parse(order[2].ToString()),
+                            Int32.Parse(order[4].ToString()), DateTime.Parse(order[3].ToString()));
                             list.Add(o);
                         }
                         return list;
@@ -1058,7 +1089,7 @@ namespace ProjektHurtownia
 
         public static OrderPosition GetOrderPosition(int orderPositionId)
         {
-            string query = $"SELECT total_cost,count,guarantee_end,product_id FROM order_position WHERE order_position_id=@OrderPositionId";
+            string query = $"SELECT order_id,total_cost,count,guarantee_end,product_id FROM order_position WHERE order_position_id=@OrderPositionId";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
@@ -1073,8 +1104,8 @@ namespace ProjektHurtownia
                     if (order.HasRows)
                     {
                         order.Read();
-                        position = new OrderPosition(orderPositionId, Double.Parse(order[0].ToString()), Int32.Parse(order[1].ToString()),
-                            Int32.Parse(order[3].ToString()), DateTime.Parse(order[2].ToString()));
+                        position = new OrderPosition(Int32.Parse(order[0].ToString()), orderPositionId, Double.Parse(order[1].ToString()), Int32.Parse(order[2].ToString()),
+                            Int32.Parse(order[4].ToString()), DateTime.Parse(order[3].ToString()));
                     }
                 }
                 catch (Exception ex)
@@ -1084,6 +1115,7 @@ namespace ProjektHurtownia
                 return position;
             }
         }
+
         private static bool IsReturnPossible(int orderPositionId) // wyświetla odpowiednie wartości w kolumnie datagridview w zależności od tego co zwraca funkcja
         {
             string query = $"SELECT guarantee_end FROM order_position WHERE order_position_id=@OrderPositionId";
@@ -1120,7 +1152,7 @@ namespace ProjektHurtownia
             }
         }
 
-        public static void CancelOrder(int orderPositionId, int productId, int newUnitQuantity)
+        public static void ReturnOrderPosition(int orderPositionId, int productId, int newUnitQuantity)
         {
             if (IsReturnPossible(orderPositionId))
             {
@@ -1144,30 +1176,58 @@ namespace ProjektHurtownia
                 MessageBox.Show("Zwrot niemożliwy, gdyż upłynął termin.", "Termin upłynął", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
-        public static int MaxCurrentOrderId()
+        public static bool IsOrderActual(int orderId)
         {
-            string query = "SELECT COALESCE(MAX(order_id),-1) FROM [order]";
+            string query = $"SELECT COUNT(*) FROM order_position WHERE order_id=@OrderId";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {
                 SqlCommand command = new SqlCommand(query, connection);
-
+                command.Parameters.AddWithValue("@OrderId", orderId);
                 try
                 {
                     connection.Open();
-                    return (int)command.ExecuteScalar(); // return max order id
+                    SqlDataReader rd = command.ExecuteReader();
+                    if (rd.HasRows)
+                    {
+                        rd.Read();
+                        if (rd.GetInt32(0) > 0)
+                            return true;
+                        else
+                            return false;
+                    }
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
+                return true;
             }
-            return -1;
         }
 
-        public static int MaxCurrentOrderPositionId()
+        public static void DeleteOrder(int orderId)
         {
-            string query = "SELECT COALESCE(MAX(order_position_id),-1) FROM order_position";
+            if (!IsOrderActual(orderId))
+            {
+                string query = $"DELETE FROM [order] WHERE order_id=@OrderId";
+
+                using (IDbConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
+                {
+                    try
+                    {
+                        connection.Execute(query, new { OrderId = orderId });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "message", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
+        }
+
+        public static int MaxCurrentOrderId()
+        {
+            string query = "SELECT COALESCE(MAX(order_id),-1) FROM [order]";
 
             using (SqlConnection connection = new SqlConnection(Helper.ConnectionValue("HurtowniaDB")))
             {

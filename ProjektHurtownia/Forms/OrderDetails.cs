@@ -18,6 +18,7 @@ namespace ProjektHurtownia.Forms
         private int count =1;
         private double totalCost;
         private readonly Product product;
+        private readonly int maxCount;
 
         public OrderDetails(int idProduct)
         {
@@ -31,28 +32,35 @@ namespace ProjektHurtownia.Forms
             providerTextBox.Text = DateBase.GetProviderById(product.ProviderId).ProviderName;
             priceTextBox.Text = product.UnitPrice + " zł";
             guaranteeTextBox.Text = DateBase.GetProviderById(product.ProviderId).GuaranteePeriod.ToString();
-            countUpDown.Maximum = product.UnitQuantity;
+            maxCount = product.UnitQuantity;
             totalCostTextBox.Text = product.UnitPrice + " zł";
             totalCost = product.UnitPrice;
         }
 
         private void button1_Click(object sender, EventArgs e) // złóż zamówienie
-        {           
-            if (DateBase.cart.ContainsKey(idProduct))
-            {
-                DateBase.cart[idProduct] = count;
-                MessageBox.Show("Produkt był już w koszyku. Nadpisano liczbę produktów.", "Zmiana liczby produktu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+        {
+            if (countUpDown.Value > maxCount)
+                MessageBox.Show("Wybrano zbyt dużą liczbę. Liczba dostępnych egzemplarzy: " + maxCount, "Błędna liczba", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            else if (countUpDown.Value == 0)
+                MessageBox.Show("Należy wybrać co najmniej 1 egzemplarz.", "Błędna liczba", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
-                DateBase.cart.Add(idProduct, count);
-                MessageBox.Show("Pomyślnie dodano nowy produkt do koszyka.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+                if (DateBase.cart.ContainsKey(idProduct))
+                {
+                    DateBase.cart[idProduct] = count;
+                    MessageBox.Show("Produkt był już w koszyku. Nadpisano liczbę produktów.", "Zmiana liczby produktu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    DateBase.cart.Add(idProduct, count);
+                    MessageBox.Show("Pomyślnie dodano nowy produkt do koszyka.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
 
-            CartPanel cart = new CartPanel();
-            Hide();
-            cart.ShowDialog();
-            Close();
+                CartPanel cart = new CartPanel();
+                Hide();
+                cart.ShowDialog();
+                Close();
+            }           
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
@@ -76,11 +84,6 @@ namespace ProjektHurtownia.Forms
             {
                 e.Handled = true;
             }
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Jeśli liczba nie uległa zmianie, wówczas była poprawna.\nLiczbę równą 0 zamieniono na 1.\nZa duża liczbę zamieniono na maksymalną możliwą.\n", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
     }
 }

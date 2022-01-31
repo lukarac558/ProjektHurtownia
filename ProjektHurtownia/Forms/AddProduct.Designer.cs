@@ -146,11 +146,6 @@ namespace ProjektHurtownia.Forms
             0,
             0,
             0});
-            this.countUpDown.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
             this.countUpDown.Name = "countUpDown";
             this.countUpDown.Size = new System.Drawing.Size(100, 20);
             this.countUpDown.TabIndex = 25;
@@ -172,21 +167,16 @@ namespace ProjektHurtownia.Forms
             131072});
             this.priceUpDown.Location = new System.Drawing.Point(129, 156);
             this.priceUpDown.Maximum = new decimal(new int[] {
-            200000,
+            999999,
             0,
             0,
             0});
-            this.priceUpDown.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
             this.priceUpDown.Name = "priceUpDown";
             this.priceUpDown.Size = new System.Drawing.Size(100, 20);
             this.priceUpDown.TabIndex = 26;
             this.priceUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.priceUpDown.Value = new decimal(new int[] {
-            1,
+            10000,
             0,
             0,
             131072});
